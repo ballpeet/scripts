@@ -89,8 +89,8 @@ local espcorou = coroutine.create(function()
 				if autocollectswitch == true then
 					local savedcf = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
 					game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = item.Base.CFrame
-					wait(0.2)
 					fireclickdetector(item.ClickDetector)
+					wait(1)
 					game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = savedcf
 				end
 			end
