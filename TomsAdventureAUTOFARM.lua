@@ -59,6 +59,7 @@ videoframe.Looped = true
 videoframe.Volume = 0
 videoframe.BorderSizePixel = 0
 videoframe.Video = getsynasset("kyands.webm")
+warn(getsynasset("kyands.webm"))
 
 local espswitch = false
 local autocollectswitch = false
