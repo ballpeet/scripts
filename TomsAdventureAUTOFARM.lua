@@ -1,4 +1,3 @@
-local stop = false
 local mouse = game.Players.LocalPlayer:GetMouse()
 local userinput = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
