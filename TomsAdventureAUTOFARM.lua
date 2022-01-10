@@ -93,11 +93,13 @@ farmswitch.MouseButton1Click:Connect(function()
 		farmswitch.BorderColor3 = Color3.fromRGB(0,200,0)
 		farmswitch.Text = "Item ESP: ON"
 		espswitch = true
+		coroutine.resume(espcorou)
 	elseif espswitch == true then
 		farmswitch.BackgroundColor3 = Color3.fromRGB(255,0,0)
 		farmswitch.BorderColor3 = Color3.fromRGB(200,0,0)
 		farmswitch.Text = "Item ESP: OFF"
 		espswitch = false
+		coroutine.yield(espcorou)
 	end
 end)
 
