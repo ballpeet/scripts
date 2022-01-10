@@ -1,4 +1,6 @@
 local stop = false
+local speed = 125
+
 
 local standstopickup = {"ZaHandoBandDrop"} -- unused for now dw
 
@@ -13,9 +15,9 @@ spawn(function()
                 local distance = math.abs((game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame.Position - v.CFrame.Position).Magnitude)
                 
                 if distance > 1 then
-                    local tweeninf = TweenInfo.new(distance/75, Enum.EasingStyle.Linear)
+                    local tweeninf = TweenInfo.new(distance/speed, Enum.EasingStyle.Linear)
                     tweenserv:Create(game.Players.LocalPlayer.Character.HumanoidRootPart, tweeninf, {CFrame = v.CFrame}):Play()
-                    wait(distance/75)
+                    wait(distance/speed)
                 end
                 fireclickdetector(v.ClickDetector, 1)
             end
