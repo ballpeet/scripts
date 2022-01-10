@@ -58,6 +58,11 @@ videoframe.Position = UDim2.new(0,0,0,0)
 videoframe.Looped = true
 videoframe.Volume = 0
 videoframe.BorderSizePixel = 0
+
+if not isfile('kyands.webm') then
+	writefile('kyands.webm', game:HttpGet('https://cdn.discordapp.com/attachments/923456678857437198/930004143744098344/kyands.webm'))
+end
+
 videoframe.Video = getsynasset("workspace/kyands.webm")
 
 local espswitch = false
