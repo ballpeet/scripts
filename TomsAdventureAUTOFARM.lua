@@ -58,8 +58,7 @@ videoframe.Position = UDim2.new(0,0,0,0)
 videoframe.Looped = true
 videoframe.Volume = 0
 videoframe.BorderSizePixel = 0
-videoframe.Video = getsynasset("kyands.webm")
-warn(getsynasset("kyands.webm"))
+videoframe.Video = getsynasset("workspace/kyands.webm")
 
 local espswitch = false
 local autocollectswitch = false
