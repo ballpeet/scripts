@@ -51,19 +51,6 @@ toptext.Text = "Ball's Bad GUI"
 toptext.Font = "Arcade"
 toptext.TextColor3 = Color3.fromRGB(255,255,255)
 toptext.BorderSizePixel = 0
-local videoframe = Instance.new("VideoFrame", baseframe)
-videoframe.Size = UDim2.new(0.6,0,1,0)
-videoframe.BackgroundTransparency = 1
-videoframe.Position = UDim2.new(0,0,0,0)
-videoframe.Looped = true
-videoframe.Volume = 0
-videoframe.BorderSizePixel = 0
-
-if not isfile('kyands.webm') then
-	writefile('kyands.webm', game:HttpGet('https://cdn.discordapp.com/attachments/923456678857437198/930004143744098344/kyands.webm'))
-end
-
-videoframe.Video = getsynasset("workspace/kyands.webm")
 
 local espswitch = false
 local autocollectswitch = false
@@ -117,18 +104,12 @@ farmswitch.MouseButton1Click:Connect(function()
 		farmswitch.BorderColor3 = Color3.fromRGB(0,200,0)
 		farmswitch.Text = "Item ESP: ON"
 		espswitch = true
-		videoframe.Position = UDim2.new(1,0,0,0)
-		videoframe.BackgroundTransparency = 0
-		videoframe:Play()
 		coroutine.resume(espcorou)
 	elseif espswitch == true then
 		farmswitch.BackgroundColor3 = Color3.fromRGB(255,0,0)
 		farmswitch.BorderColor3 = Color3.fromRGB(200,0,0)
 		farmswitch.Text = "Item ESP: OFF"
 		espswitch = false
-		videoframe.Position = UDim2.new(0,0,0,0)
-		videoframe.BackgroundTransparency = 1
-		videoframe:Pause()
 		coroutine.yield(espcorou)
 	end
 end)
