@@ -52,6 +52,10 @@ toptext.Font = "Arcade"
 toptext.TextColor3 = Color3.fromRGB(255,255,255)
 toptext.BorderSizePixel = 0
 
+local notifysound = Instance.new("Sound", game.Workspace)
+notifysound.Volume = 2
+notifysound.SoundId = getsynasset("Clang1")
+
 local espswitch = false
 local autocollectswitch = false
 
@@ -59,6 +63,7 @@ local espcorou = coroutine.create(function()
 	local stop = false
 	repeat
 		wait(1)
+		notifysound:Play()
 		for i, item in pairs(game.Workspace.Terrain.Items:GetChildren()) do
 			if item.Name == "Item" then
 				if item:FindFirstChild("Indicator") == nil then
@@ -89,8 +94,8 @@ local espcorou = coroutine.create(function()
 				if autocollectswitch == true then
 					local savedcf = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
 					game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = item.Base.CFrame
+					wait(0.2)
 					fireclickdetector(item.ClickDetector)
-					wait(1)
 					game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = savedcf
 				end
 			end
