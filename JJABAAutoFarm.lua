@@ -1,5 +1,5 @@
 local stop = false
-local speed = 125
+local speed = 75
 
 
 local standstopickup = {"ZaHandoBandDrop"} -- unused for now dw
