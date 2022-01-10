@@ -11,16 +11,20 @@ frametop.BackgroundTransparency = 0.2
 frametop.BorderSizePixel = 0
 frametop.BackgroundColor3 = Color3.fromRGB(20,50,50)
 local baseframe = Instance.new("Frame", frametop)
-baseframe.Size = UDim2.new(1,0,8,0)
+baseframe.Size = UDim2.new(1,0,10,0)
 baseframe.Position = UDim2.new(0,0,1,0)
 baseframe.AnchorPoint = Vector2.new(0,0)
 baseframe.BackgroundTransparency = 0.25
 baseframe.BorderSizePixel = 0
 baseframe.BackgroundColor3 = Color3.fromRGB(20,50,100)
-local farmswitch = Instance.new("TextButton", baseframe)
+local scrollingframe = Instance.new("ScrollingFrame", baseframe)
+scrollingframe.Size = UDim2.new(1,0,1,0)
+scrollingframe.BackgroundTransparency = 1
+scrollingframe.BorderSizePixel = 0
+local farmswitch = Instance.new("TextButton", scrollingframe)
 farmswitch.AnchorPoint = Vector2.new(0.5,0)
-farmswitch.Position = UDim2.new(0.5,0,0.2,0)
-farmswitch.Size = UDim2.new(0.9,0,0.1,0)
+farmswitch.Position = UDim2.new(0.5,0,0.05,0)
+farmswitch.Size = UDim2.new(0.9,0,0.05,0)
 farmswitch.Text = "Item ESP: OFF"
 farmswitch.BackgroundTransparency = 0.5
 farmswitch.BorderSizePixel = 3
@@ -28,10 +32,10 @@ farmswitch.BackgroundColor3 = Color3.fromRGB(255,0,0)
 farmswitch.BorderColor3 = Color3.fromRGB(200,0,0)
 farmswitch.TextScaled = true
 farmswitch.Font = "Legacy"
-local autocollect = Instance.new("TextButton", baseframe)
+local autocollect = Instance.new("TextButton", scrollingframe)
 autocollect.AnchorPoint = Vector2.new(0.5,0)
-autocollect.Position = UDim2.new(0.5,0,0.4,0)
-autocollect.Size = UDim2.new(0.9,0,0.1,0)
+autocollect.Position = UDim2.new(0.5,0,0.15,0)
+autocollect.Size = UDim2.new(0.9,0,0.05,0)
 autocollect.Text = "Auto Collect Items: OFF"
 autocollect.BackgroundTransparency = 0.5
 autocollect.BorderSizePixel = 3
@@ -39,6 +43,22 @@ autocollect.BackgroundColor3 = Color3.fromRGB(255,0,0)
 autocollect.BorderColor3 = Color3.fromRGB(200,0,0)
 autocollect.TextScaled = true
 autocollect.Font = "Legacy"
+local toptext = Instance.new("TextLabel", frametop)
+toptext.BackgroundTransparency = 1
+toptext.Size = UDim2.new(0.8,0,1,0)
+toptext.TextScaled = true
+toptext.Text = "Ball's Bad GUI"
+toptext.Font = "Arcade"
+toptext.TextColor3 = Color3.fromRGB(255,255,255)
+toptext.BorderSizePixel = 0
+local videoframe = Instance.new("VideoFrame", baseframe)
+videoframe.Size = UDim2.new(0.6,0,1,0)
+videoframe.BackgroundTransparency = 1
+videoframe.Position = UDim2.new(0,0,0,0)
+videoframe.Looped = true
+videoframe.Volume = 0
+videoframe.BorderSizePixel = 0
+videoframe.Video = getsynasset("file:///C:/Users/bigbo/Desktop/Assets/kyands.webm")
 
 local espswitch = false
 local autocollectswitch = false
@@ -92,12 +112,18 @@ farmswitch.MouseButton1Click:Connect(function()
 		farmswitch.BorderColor3 = Color3.fromRGB(0,200,0)
 		farmswitch.Text = "Item ESP: ON"
 		espswitch = true
+		videoframe.Position = UDim2.new(1,0,0,0)
+		videoframe.BackgroundTransparency = 0
+		videoframe:Play()
 		coroutine.resume(espcorou)
 	elseif espswitch == true then
 		farmswitch.BackgroundColor3 = Color3.fromRGB(255,0,0)
 		farmswitch.BorderColor3 = Color3.fromRGB(200,0,0)
 		farmswitch.Text = "Item ESP: OFF"
 		espswitch = false
+		videoframe.Position = UDim2.new(0,0,0,0)
+		videoframe.BackgroundTransparency = 1
+		videoframe:Pause()
 		coroutine.yield(espcorou)
 	end
 end)
