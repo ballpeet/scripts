@@ -1,12 +1,5 @@
-if syn then
-
-else
-	_G.autoReplay = false
-	_G.autoUlt = false
-
-	_G.savedGuiPos = UDim2.new(0.5,0,0.5,0)
-end
-
+task.wait(1)
+print("loaded")
 spawn(function()
 	local scriptdisable = false
 
