@@ -1,4 +1,9 @@
 repeat task.wait(0) until game:IsLoaded()
+
+for i,v in pairs(getconnections(game.Players.LocalPlayer.Idled)) do
+	v:Disable()
+end
+
 _G.autoReplay = false
 _G.autoUlt = false
 _G.savedGuiPos = UDim2.new(0.5,0,0.5,0)
