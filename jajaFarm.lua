@@ -3,14 +3,13 @@ _G.autoReplay = false
 _G.autoUlt = false
 _G.savedGuiPos = UDim2.new(0.5,0,0.5,0)
 
-if isfolder("ballsDataOfAwesomeness") then
-	
-else
+if not isfolder("ballsDataOfAwesomeness") then
 	makefolder("ballsDataOfAwesomeness")
 end
 
 if isfile("ballsDataOfAwesomeness/autoReplay.txt") then
 	local data = readfile("ballsDataOfAwesomeness/autoReplay.txt")
+	print(data)
 	if data == "true" then
 		_G.autoReplay = true
 	end
