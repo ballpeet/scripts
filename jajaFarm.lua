@@ -247,9 +247,5 @@ spawn(function()
 	
 	
 	local codeLink = "https://raw.githubusercontent.com/ballpeet/scripts/main/jajaFarm.lua"
-	game:GetService("Players").LocalPlayer.OnTeleport:Connect(function(State)
-		if State == Enum.TeleportState.Started then
-			syn.queue_on_teleport("loadstring(game:HttpGet(codeLink, true))()")
-		end
-	end)
+	syn.queue_on_teleport("loadstring(game:HttpGet(codeLink, true))()")
 end)
