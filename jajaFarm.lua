@@ -1,4 +1,5 @@
 repeat task.wait(0) until game:IsLoaded()
+_G.savedGuiPos = UDim2.new(0.5,0,0.5,0)
 spawn(function()
 	local scriptdisable = false
 
