@@ -8,8 +8,6 @@ else
 end
 
 spawn(function()
-	repeat wait(0) until game.Players.LocalPlayer
-	game.Players.LocalPlayer.CharacterAdded:Wait()
 	local scriptdisable = false
 
 	local tweenserv = game:GetService("TweenService")
