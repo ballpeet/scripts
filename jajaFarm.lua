@@ -1,5 +1,23 @@
 repeat task.wait(0) until game:IsLoaded()
+_G.autoReplay = false
+_G.autoUlt = false
 _G.savedGuiPos = UDim2.new(0.5,0,0.5,0)
+
+if isfolder("ballsDataOfAwesomeness") then
+	
+else
+	makefolder("ballsDataOfAwesomeness")
+end
+
+if isfile("ballsDataOfAwesomeness/autoReplay.txt") then
+	local data = readfile("ballsDataOfAwesomeness/autoReplay.txt")
+	_G.autoReplay = data
+end
+if isfile("ballsDataOfAwesomeness/autoUlt.txt") then
+	local data = readfile("ballsDataOfAwesomeness/autoUlt.txt")
+	_G.autoUlt = data
+end
+
 spawn(function()
 	local scriptdisable = false
 
@@ -130,6 +148,11 @@ spawn(function()
 		local cornerOne = Vector2.new(0,0)
 	end
 	
+	local function saveData()
+		writefile("ballsDataOfAwesomeness/autoReplay.txt", tostring(_G.autoReplay))
+		writefile("ballsDataOfAwesomeness/autoUlt.txt", tostring(_G.autoUlt))
+	end
+	
 	local debounceReplay = false
 	
 	local function loops()
@@ -145,6 +168,25 @@ spawn(function()
 			end
 			if _G.autoUlt == true then
 
+			end
+			if _G.autoReplay == true then
+				autoreplayButton.BackgroundColor3 = Color3.fromRGB(0,200,0)
+				autoreplayButton.BorderColor3 = Color3.fromRGB(0,155,0)
+				autoreplayButton.Text = "Auto Replay: ON"
+			elseif _G.autoReplay == false then
+				autoreplayButton.BackgroundColor3 = Color3.fromRGB(200,0,0)
+				autoreplayButton.BorderColor3 = Color3.fromRGB(155,0,0)
+				autoreplayButton.Text = "Auto Replay: OFF"
+			end
+
+			if _G.autoUlt == true then
+				autoUltButton.BackgroundColor3 = Color3.fromRGB(0,200,0)
+				autoUltButton.BorderColor3 = Color3.fromRGB(0,155,0)
+				autoUltButton.Text = "Auto Ult: ON"
+			elseif _G.autoUlt == false then
+				autoUltButton.BackgroundColor3 = Color3.fromRGB(200,0,0)
+				autoUltButton.BorderColor3 = Color3.fromRGB(155,0,0)
+				autoUltButton.Text = "Auto Ult: OFF"
 			end
 			removeLines()
 			createLines()
@@ -183,26 +225,6 @@ spawn(function()
 			_G.autoUlt = false
 		end
 	end)
-	
-	if _G.autoReplay == true then
-		autoreplayButton.BackgroundColor3 = Color3.fromRGB(0,200,0)
-		autoreplayButton.BorderColor3 = Color3.fromRGB(0,155,0)
-		autoreplayButton.Text = "Auto Replay: ON"
-	elseif _G.autoReplay == false then
-		autoreplayButton.BackgroundColor3 = Color3.fromRGB(200,0,0)
-		autoreplayButton.BorderColor3 = Color3.fromRGB(155,0,0)
-		autoreplayButton.Text = "Auto Replay: OFF"
-	end
-	
-	if _G.autoUlt == true then
-		autoUltButton.BackgroundColor3 = Color3.fromRGB(0,200,0)
-		autoUltButton.BorderColor3 = Color3.fromRGB(0,155,0)
-		autoUltButton.Text = "Auto Ult: ON"
-	elseif _G.autoUlt == false then
-		autoUltButton.BackgroundColor3 = Color3.fromRGB(200,0,0)
-		autoUltButton.BorderColor3 = Color3.fromRGB(155,0,0)
-		autoUltButton.Text = "Auto Ult: OFF"
-	end
 
 	pcall(function()
 		speedchangeamt.FocusLost:Connect(function(enter)
