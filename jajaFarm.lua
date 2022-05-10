@@ -11,11 +11,15 @@ end
 
 if isfile("ballsDataOfAwesomeness/autoReplay.txt") then
 	local data = readfile("ballsDataOfAwesomeness/autoReplay.txt")
-	_G.autoReplay = data
+	if data == "true" then
+		_G.autoReplay = true
+	end
 end
 if isfile("ballsDataOfAwesomeness/autoUlt.txt") then
 	local data = readfile("ballsDataOfAwesomeness/autoUlt.txt")
-	_G.autoUlt = data
+	if data == "true" then
+		_G.autoUlt = true
+	end
 end
 
 spawn(function()
@@ -157,6 +161,7 @@ spawn(function()
 	
 	local function loops()
 		repeat
+			saveData()
 			if _G.autoReplay == true then
 				pcall(function()
 					if game.Players.LocalPlayer.PlayerGui.ScreenGui.OutroFrame.Visible == true then
