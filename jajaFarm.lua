@@ -8,7 +8,8 @@ else
 end
 
 spawn(function()
-	
+	repeat wait(0) until game.Players.LocalPlayer
+	game.Players.LocalPlayer.CharacterAdded:Wait()
 	local scriptdisable = false
 
 	local tweenserv = game:GetService("TweenService")
@@ -109,7 +110,7 @@ spawn(function()
 	
 	local autoUltButton = Instance.new("TextButton", scrollingframe)
 	autoUltButton.AnchorPoint = Vector2.new(0.5,0)
-	autoUltButton.Position = UDim2.new(0.5,0,0.2/listlength,0)
+	autoUltButton.Position = UDim2.new(0.5,0,0.25/listlength,0)
 	autoUltButton.Size = UDim2.new(0.9,0,0.1/listlength,0)
 	autoUltButton.Text = "Auto Ult: OFF"
 	autoUltButton.BackgroundTransparency = 0.5
@@ -246,6 +247,18 @@ spawn(function()
 	userinput.InputEnded:Connect(function(input, processed)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 then
 			dragging = false
+		end
+	end)
+	
+	local function blunction()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/ballpeet/scripts/main/jajaFarm.lua", true))()
+	end
+	
+	
+	local codeLink = "https://raw.githubusercontent.com/ballpeet/scripts/main/jajaFarm.lua"
+	game:GetService("Players").LocalPlayer.OnTeleport:Connect(function(State)
+		if State == Enum.TeleportState.Started then
+			syn.queue_on_teleport("loadstring(game:HttpGet(codeLink, true))()")
 		end
 	end)
 end)
