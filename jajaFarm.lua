@@ -130,10 +130,18 @@ spawn(function()
 		local cornerOne = Vector2.new(0,0)
 	end
 	
+	local debounceReplay = false
+	
 	local function loops()
 		repeat
 			if _G.autoReplay == true then
-
+				pcall(function()
+					if game.Players.LocalPlayer.PlayerGui.ScreenGui.OutroFrame.Visible == true then
+						if game.Players.LocalPlayer.PlayerGui.ScreenGui.OutroFrame.Replay.Visible == true then
+							game.ReplicatedStorage.RemoteFunctions.ReplayWorld:InvokeServer()
+						end
+					end
+				end)
 			end
 			if _G.autoUlt == true then
 
