@@ -246,6 +246,6 @@ spawn(function()
 	end
 	
 	
-	local codeLink = "https://raw.githubusercontent.com/ballpeet/scripts/main/jajaFarm.lua"
-	syn.queue_on_teleport("loadstring(game:HttpGet(codeLink, true))()")
+	_G.codeLink = "https://raw.githubusercontent.com/ballpeet/scripts/main/jajaFarm.lua"
+	syn.queue_on_teleport("loadstring(game:HttpGet(_G.codeLink, true))()")
 end)
