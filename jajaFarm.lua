@@ -176,15 +176,19 @@ spawn(function()
 				end)
 			end
 			if _G.autoUlt == true then
-				pcall(function()
+				local success, errormes = pcall(function()
 					for i,v in pairs(game.Players.LocalPlayer.PlayerGui.ScreenGui.UnitsShower.UnitButtonsFolder:GetChildren()) do
-						if v.UltShower.Visible == true then
+						if v.UltShover.Visible == true then
+							print(v.UltText.Text)
 							if v.UltText.Text == "Ready!" then
 								game.ReplicatedStorage.RemoteEvents.UltRequestFromClient:FireServer(v.PositionPlateNumber.Value)
 							end
 						end
 					end
 				end)
+				if not success then
+					warn(errormes)
+				end
 			end
 			if _G.autoReplay == true then
 				autoreplayButton.BackgroundColor3 = Color3.fromRGB(0,200,0)
