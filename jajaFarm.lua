@@ -1,5 +1,4 @@
-task.wait(1)
-print("loaded")
+repeat task.wait(0) until game:IsLoaded()
 spawn(function()
 	local scriptdisable = false
 
@@ -241,11 +240,6 @@ spawn(function()
 		end
 	end)
 	
-	local function blunction()
-		loadstring(game:HttpGet("https://raw.githubusercontent.com/ballpeet/scripts/main/jajaFarm.lua", true))()
-	end
 	
-	
-	_G.codeLink = "https://raw.githubusercontent.com/ballpeet/scripts/main/jajaFarm.lua"
-	syn.queue_on_teleport("loadstring(game:HttpGet(_G.codeLink, true))()")
+	syn.queue_on_teleport("wait(1) loadstring(game:HttpGet('https://raw.githubusercontent.com/ballpeet/scripts/main/jajaFarm.lua', true))()")
 end)
