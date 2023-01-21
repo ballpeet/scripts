@@ -271,8 +271,8 @@ module.render = function()
             for i2, renderItem in pairs(getgenv().renderedUseForChildrenDcBp) do
                 local offset = Vector2.new(mousePos.X - renderItem[2].X, mousePos.Y - renderItem[2].Y)
                 --print(offset)
+                print(i2, offset)
                 if math.abs(offset.X) < math.abs(renderItem[3].X/2) and math.abs(offset.Y) < math.abs(renderItem[3].Y/2) then
-                    print"adding"
                     mouseHovering[i2] = {offset, renderItem}
                 end
 
