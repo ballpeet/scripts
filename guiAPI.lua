@@ -183,7 +183,7 @@ module.render = function()
             drawQuad(mainColor, z, 0.9, true, 10, pointul, pointur, pointdl, pointdr)
             drawQuad(topBarColor, z, 0.9, true, 10, topLeftTab, topRightTab, pointul, pointur)
             
-            local borderThickness = 4
+            local borderThickness = 0.5
             drawLine(borderColor, z+0.1, 1, borderThickness, pointul, topLeftTab)
             drawLine(borderColor, z+0.1, 1, borderThickness, topLeftTab, topRightTab)
             drawLine(borderColor, z+0.1, 1, borderThickness, topRightTab, pointdr)
@@ -203,7 +203,7 @@ end
 local runserv = game:GetService("RunService")
 local tally = 0
 runserv.RenderStepped:Connect(function(delta)
-    tally = math.fmod(tally + 1, 3)
+    tally = math.fmod(tally + 1, 2)
     if tally == 1 then
         module.clear()
         module.render()
