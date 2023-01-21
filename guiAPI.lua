@@ -183,7 +183,7 @@ module.render = function()
             drawQuad(mainColor, z, 0.9, true, 10, pointul, pointur, pointdl, pointdr)
             drawQuad(topBarColor, z, 0.9, true, 10, topLeftTab, topRightTab, pointul, pointur)
             
-            local borderThickness = 20
+            local borderThickness = 4
             drawLine(borderColor, z+0.1, 1, borderThickness, pointul, topLeftTab)
             drawLine(borderColor, z+0.1, 1, borderThickness, topLeftTab, topRightTab)
             drawLine(borderColor, z+0.1, 1, borderThickness, topRightTab, pointdr)
