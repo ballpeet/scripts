@@ -291,12 +291,15 @@ module.render = function()
         end
     end
 
+    local mousePos = Vector2.new(mouse.X, mouse.Y + 36)
+    drawPoint(Color3.fromRGB(255,255,255), 20, 1, mousePos, 1, 10, true)
+
     for i,v in pairs(getgenv().queueForNextRenderDcBp) do
         if v == "click" then
-            local mousePos = Vector2.new(mouse.X, mouse.Y + 36)
             local mouseHovering = {}
             for i2, renderItem in pairs(getgenv().renderedUseForChildrenDcBp) do
                 local offset = Vector2.new(mousePos.X - renderItem[2].X, mousePos.Y - renderItem[2].Y)
+                
                 --print(offset)
                 print(i2, offset)
                 if math.abs(offset.X) < math.abs(renderItem[3].X/2) and math.abs(offset.Y) < math.abs(renderItem[3].Y/2) then
