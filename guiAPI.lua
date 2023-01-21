@@ -260,6 +260,10 @@ module.render = function()
                 if subname == "TopBar" then
                     print(mousePos, renderItem[2])
                     print(offset)
+
+                    if offset.X < math.abs(renderItem[3].X/2) and offset.Y < math.abs(renderItem[3].Y/2) then
+                        print("inside")
+                    end
                 end
             end
         end
