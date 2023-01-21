@@ -197,7 +197,7 @@ module.clear = function()
 end
 local inputserv = game:GetService("UserInputService")
 module.render = function()
-    local mousePos = Vector2.new(mouse.X, mouse.Y + 36)
+    local mousePos = Vector2.new(mouse.X, mouse.Y - 36)
     drawPoint(Color3.fromRGB(255,255,255), 10, 1, mousePos, 1, 10, true)
 
     local absoluteX = getgenv().screenGUI.AbsoluteSize.X
