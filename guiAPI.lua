@@ -64,6 +64,28 @@ local function drawLine(color, z, transparency, tness, start, endp)
     return
 end
 
+local function drawPoint(color, z, transparency, pos, tness, radius, filled)
+    if setting == "normal" then
+
+    elseif setting == "synapse" then
+        local draw = Drawing.new("Circle")
+        draw.Visible = true
+        draw.ZIndex = z
+        draw.Transparency = transparency
+        draw.Color = color
+        draw.Thickness = tness
+        draw.Radius = radius
+        draw.NumSides = 15
+        draw.Filled = filled
+        draw.Position = pos
+
+        table.insert(getgenv().currentRenderedDcBp, draw)
+    else
+        
+    end
+    return
+end
+
 local function drawQuad(color, z, transparency, filled, tness, topleft, topright, bleft, bright)
     if setting == "normal" then
 
@@ -257,6 +279,11 @@ module.render = function()
             drawLine(borderColor, z+0.1, 1, borderThickness, pointdl, pointul)
             
             local topBarPosition = Vector2.new(pointul:Lerp(pointur, 0.5).X, (pos.Y - (sizey * anchor.Y)) - (((absoluteY * v[2]["topbarwidth"].Scale) + v[2]["topbarwidth"].Offset) / 2))
+
+            drawPoint(borderColor, z + 3, 1, topBarPosition, 1, 10, true)
+            drawPoint(borderColor, z + 3, 1, topBarPosition, 1, 10, true)
+            drawLine(borderColor, z+2.9, 1, borderThickness, topBarPosition, pos)
+
             getgenv().renderedUseForChildrenDcBp[v[2]["fullname"]] = {z, pointul:Lerp(pointdr, 0.5), Vector2.new(sizex, sizey), "windowFramme"}
             getgenv().renderedUseForChildrenDcBp[v[2]["fullname"].."TopBar"] = {z, topBarPosition, Vector2.new(sizex, (absoluteY * v[2]["topbarwidth"].Scale) + v[2]["topbarwidth"].Offset), "windowTop"}
         else
