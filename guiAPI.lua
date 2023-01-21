@@ -15,7 +15,7 @@ if syn then
 end
 
 getgenv().screenGUI = Instance.new("ScreenGui")
-getgenv().screenGUI.IgnoreGuiInset = false
+getgenv().screenGUI.IgnoreGuiInset = true
 getgenv().screenGUI.ResetOnSpawn = false
 getgenv().screenGUI.Parent = plrs.LocalPlayer.PlayerGui
 local mouse = plrs.LocalPlayer:GetMouse()
@@ -266,7 +266,7 @@ module.render = function()
 
     for i,v in pairs(getgenv().queueForNextRenderDcBp) do
         if v == "click" then
-            local mousePos = Vector2.new(mouse.X, mouse.Y)
+            local mousePos = Vector2.new(mouse.X, mouse.Y - 36)
             local mouseHovering = {}
             for i2, renderItem in pairs(getgenv().renderedUseForChildrenDcBp) do
                 local offset = Vector2.new(mousePos.X - renderItem[2].X, mousePos.Y - renderItem[2].Y)
