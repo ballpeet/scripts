@@ -35,7 +35,7 @@ local function drawLine(color, z, transparency, tness, start, endp)
         draw1.ZIndex = z
         draw1.Transparency = transparency
         draw1.Color = color
-        draw1.Thickness = 1
+        draw1.Thickness = 0.1
         draw1.Radius = tness/2
         draw1.NumSides = 15
         draw1.Filled = true
@@ -46,8 +46,8 @@ local function drawLine(color, z, transparency, tness, start, endp)
         draw2.ZIndex = z
         draw2.Transparency = transparency
         draw2.Color = color
-        draw2.Thickness = 1
-        draw2.Radius = tness/2
+        draw2.Thickness = 0.1
+        draw2.Radius = tness/4
         draw2.NumSides = 15
         draw2.Filled = true
         draw2.Position = endp
@@ -76,6 +76,24 @@ local function drawQuad(color, z, transparency, filled, tness, topleft, topright
         draw.PointB = topleft
         draw.PointC = bleft
         draw.PointD = bright
+        table.insert(getgenv().currentRenderedDcBp, draw)
+    else
+
+    end
+    return
+end
+
+local function drawImage(z, transparency, size, pos, data)
+    if setting == "normal" then
+
+    elseif setting == "synapse" then
+        local draw = Drawing.new("Quad")
+        draw.Visible = true
+        draw.ZIndex = z
+        draw.Transparency = transparency
+        draw.Data = data
+        draw.Size = size
+        draw.Position = pos
         table.insert(getgenv().currentRenderedDcBp, draw)
     else
 
@@ -207,6 +225,9 @@ module.render = function()
 
             drawQuad(mainColor, z, 0.9, true, 10, pointul, pointur, pointdl, pointdr)
             drawQuad(topBarColor, z, 0.9, true, 10, topLeftTab, topRightTab, pointul, pointur)
+            if v[2]["imagebackground"] ~= nil then
+                drawImage(z + 0.1, 1, Vector2.new(sizex, sizey), pointul:Lerp(pointdr, 0.5), v[2]["imagebackground"])
+            end
             
             local borderThickness = 3.75
             drawLine(borderColor, z+0.1, 1, borderThickness, pointul, topLeftTab)
@@ -226,13 +247,9 @@ module.render = function()
 end
 
 local runserv = game:GetService("RunService")
-local tally = 0
-runserv.RenderStepped:Connect(function(delta)
-    tally = math.fmod(tally + 1, 2)
-    if tally == 1 then
-        module.clear()
-        module.render()
-    end
+runserv.PreRender:Connect(function(delta)
+    module.clear()
+    module.render()
 end)
 
 return module
