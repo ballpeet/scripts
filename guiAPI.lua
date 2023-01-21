@@ -197,6 +197,9 @@ module.clear = function()
 end
 local inputserv = game:GetService("UserInputService")
 module.render = function()
+    local mousePos = Vector2.new(mouse.X, mouse.Y + 36)
+    drawPoint(Color3.fromRGB(255,255,255), 10, 1, mousePos, 1, 10, true)
+
     local absoluteX = getgenv().screenGUI.AbsoluteSize.X
     local absoluteY = getgenv().screenGUI.AbsoluteSize.Y
     for i,v in pairs(getgenv().guiElementsStoredDcBp) do
@@ -214,7 +217,6 @@ module.render = function()
                     local pointul = Vector2.new(pos.X - (sizex * antianchor.X), pos.Y - (sizey * anchor.Y))
                     local pointur = Vector2.new(pos.X + (sizex * anchor.X), pos.Y - (sizey * anchor.Y))
 
-                    local mousePos = Vector2.new(mouse.X, mouse.Y)
                     local topBarPosition = Vector2.new(pointul:Lerp(pointur, 0.5).X, (pos.Y - (sizey * anchor.Y)) - (((absoluteY * v[2]["topbarwidth"].Scale) + v[2]["topbarwidth"].Offset) / 2))
                     local posToGoTo = (mousePos - found[3][1]) - Vector2.new(0,(sizey * anchor.Y) - (((absoluteY * v[2]["topbarwidth"].Scale) + v[2]["topbarwidth"].Offset) / 2))
                     local new = pos:Lerp(posToGoTo, 0.6)
@@ -286,9 +288,6 @@ module.render = function()
             
         end
     end
-
-    local mousePos = Vector2.new(mouse.X, mouse.Y + 36)
-    drawPoint(Color3.fromRGB(255,255,255), 10, 1, mousePos, 1, 10, true)
 
     for i,v in pairs(getgenv().queueForNextRenderDcBp) do
         if v == "click" then
