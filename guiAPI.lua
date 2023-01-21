@@ -36,7 +36,7 @@ local function drawLine(color, z, transparency, tness, start, endp)
         draw1.Transparency = transparency
         draw1.Color = color
         draw1.Thickness = 1
-        draw1.Radius = tness
+        draw1.Radius = tness/2
         draw1.NumSides = 15
         draw1.Filled = true
         draw1.Position = endp
@@ -47,7 +47,7 @@ local function drawLine(color, z, transparency, tness, start, endp)
         draw2.Transparency = transparency
         draw2.Color = color
         draw2.Thickness = 1
-        draw2.Radius = tness
+        draw2.Radius = tness/2
         draw2.NumSides = 15
         draw2.Filled = true
         draw2.Position = endp
@@ -208,7 +208,7 @@ module.render = function()
             drawQuad(mainColor, z, 0.9, true, 10, pointul, pointur, pointdl, pointdr)
             drawQuad(topBarColor, z, 0.9, true, 10, topLeftTab, topRightTab, pointul, pointur)
             
-            local borderThickness = 2.75
+            local borderThickness = 3.75
             drawLine(borderColor, z+0.1, 1, borderThickness, pointul, topLeftTab)
             drawLine(borderColor, z+0.1, 1, borderThickness, topLeftTab, topRightTab)
             drawLine(borderColor, z+0.1, 1, borderThickness, topRightTab, pointdr)
