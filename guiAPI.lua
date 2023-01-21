@@ -18,6 +18,7 @@ getgenv().screenGUI = Instance.new("ScreenGui")
 getgenv().screenGUI.IgnoreGuiInset = true
 getgenv().screenGUI.ResetOnSpawn = false
 getgenv().screenGUI.Parent = plrs.LocalPlayer.PlayerGui
+local mouse = plrs.LocalPlayer:GetMouse()
 
 local function drawLine(color, z, transparency, tness, start, endp)
     if setting == "normal" then
@@ -249,16 +250,16 @@ module.render = function()
 
     for i,v in pairs(getgenv().queueForNextRenderDcBp) do
         if v == "click" then
-            local mousePos = inputserv:GetMouseLocation() - Vector2.new(0, 300)
+            local mousePos = Vector2.new(mouse.X, mouse.Y)
 
             for i2, renderItem in pairs(getgenv().renderedUseForChildrenDcBp) do
-                print(mousePos, renderItem[2])
                 local offset = Vector2.new(mousePos.X - renderItem[2].X, mousePos.Y - renderItem[2].Y)
-                print(offset)
+                --print(offset)
 
                 local subname = string.sub(i2, string.len(i2) - 5, string.len(i2))
                 if subname == "TopBar" then
-                    
+                    print(mousePos, renderItem[2])
+                    print(offset)
                 end
             end
         end
