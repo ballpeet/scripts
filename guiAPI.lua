@@ -251,32 +251,32 @@ module.render = function()
                 drawImage(z + 0.1, 0.8, Vector2.new(sizex, sizey), pointul, v[2]["imagebackground"])
             end
             
-            local borderThickness = 4.5
+            local borderThickness = 2.5
 
-            drawPoint(pointColor, z + 0.2, 1, pointul, 1, borderThickness/1.5, true)
-            drawPoint(pointColor, z + 0.2, 1, pointur, 1, borderThickness/1.5, true)
-            drawPoint(pointColor, z + 0.2, 1, pointdl, 1, borderThickness/1.5, true)
-            drawPoint(pointColor, z + 0.2, 1, pointdr, 1, borderThickness/1.5, true)
-            drawPoint(pointColor, z + 0.2, 1, topLeftTab, 1, borderThickness/1.5, true)
-            drawPoint(pointColor, z + 0.2, 1, topRightTab, 1, borderThickness/1.5, true)
+            drawPoint(pointColor, z + 2, 1, pointul, 1, borderThickness/1.5, true)
+            drawPoint(pointColor, z + 2, 1, pointur, 1, borderThickness/1.5, true)
+            drawPoint(pointColor, z + 2, 1, pointdl, 1, borderThickness/1.5, true)
+            drawPoint(pointColor, z + 2, 1, pointdr, 1, borderThickness/1.5, true)
+            drawPoint(pointColor, z + 2, 1, topLeftTab, 1, borderThickness/1.5, true)
+            drawPoint(pointColor, z + 2, 1, topRightTab, 1, borderThickness/1.5, true)
 
-            drawLine(borderColor, z+0.1, 1, borderThickness, pointul, topLeftTab)
-            drawLine(borderColor, z+0.1, 1, borderThickness, topLeftTab, topRightTab)
-            drawLine(borderColor, z+0.1, 1, borderThickness, topRightTab, pointdr)
-            drawLine(borderColor, z+0.1, 1, borderThickness, pointdr, pointdl)
-            drawLine(borderColor, z+0.1, 1, borderThickness, pointdl, pointul)
+            drawLine(borderColor, z+1, 1, borderThickness, pointul, topLeftTab)
+            drawLine(borderColor, z+1, 1, borderThickness, topLeftTab, topRightTab)
+            drawLine(borderColor, z+1, 1, borderThickness, topRightTab, pointdr)
+            drawLine(borderColor, z+1, 1, borderThickness, pointdr, pointdl)
+            drawLine(borderColor, z+1, 1, borderThickness, pointdl, pointul)
 
-            drawLine(borderColor, z-0.2, 0.8, borderThickness/2, pos, pointul)
-            drawLine(borderColor, z-0.2, 0.8, borderThickness/2, pos, pointur)
-            drawLine(borderColor, z-0.2, 0.8, borderThickness/2, pos, pointdl)
-            drawLine(borderColor, z-0.2, 0.8, borderThickness/2, pos, pointdr)
+            drawLine(borderColor, z-1, 0.8, borderThickness/2, pos, pointul)
+            drawLine(borderColor, z-1, 0.8, borderThickness/2, pos, pointur)
+            drawLine(borderColor, z-1, 0.8, borderThickness/2, pos, pointdl)
+            drawLine(borderColor, z-1, 0.8, borderThickness/2, pos, pointdr)
             
             local topBarPosition = Vector2.new(pointul:Lerp(pointur, 0.5).X, (pos.Y - (sizey * anchor.Y)) - (((absoluteY * v[2]["topbarwidth"].Scale) + v[2]["topbarwidth"].Offset) / 2))
 
-            drawLine(borderColor, z-0.2, 0.8, borderThickness/2, topBarPosition, topLeftTab)
-            drawLine(borderColor, z-0.2, 0.8, borderThickness/2, topBarPosition, topRightTab)
-            drawLine(borderColor, z-0.2, 0.8, borderThickness/2, topBarPosition, pointur)
-            drawLine(borderColor, z-0.2, 0.8, borderThickness/2, topBarPosition, pointul)
+            drawLine(borderColor, z-1, 0.8, borderThickness/2, topBarPosition, topLeftTab)
+            drawLine(borderColor, z-1, 0.8, borderThickness/2, topBarPosition, topRightTab)
+            drawLine(borderColor, z-1, 0.8, borderThickness/2, topBarPosition, pointur)
+            drawLine(borderColor, z-1, 0.8, borderThickness/2, topBarPosition, pointul)
 
             getgenv().renderedUseForChildrenDcBp[v[2]["fullname"]] = {z, pointul:Lerp(pointdr, 0.5), Vector2.new(sizex, sizey), "windowFramme"}
             getgenv().renderedUseForChildrenDcBp[v[2]["fullname"].."TopBar"] = {z, topBarPosition, Vector2.new(sizex, (absoluteY * v[2]["topbarwidth"].Scale) + v[2]["topbarwidth"].Offset), "windowTop"}
