@@ -209,6 +209,21 @@ module.render = function()
             local pos = v[2]["position"]
             local anchor = v[2]["anchor"]
             local antianchor = Vector2.new(1 - v[2]["anchor"].X, 1 - v[2]["anchor"].Y)
+
+            for i2, found in pairs(getgenv().savingVariablesDcBp) do
+                if found[2] == "windowDrag" and found[1] == v[2]["fullname"] then
+                    local pointul = Vector2.new(pos.X - (sizex * antianchor.X), pos.Y - (sizey * anchor.Y))
+                    local pointur = Vector2.new(pos.X + (sizex * anchor.X), pos.Y - (sizey * anchor.Y))
+
+                    local mousePos = Vector2.new(mouse.X, mouse.Y)
+                    local topBarPosition = Vector2.new(pointul:Lerp(pointur, 0.5).X, (pos.Y - (sizey * anchor.Y)) - (((absoluteY * v[2]["topbarwidth"].Scale) + v[2]["topbarwidth"].Offset) / 2))
+                    local posToGoTo = (mousePos - found[3][1]) + Vector2.new(0,(sizey * anchor.Y) - (((absoluteY * v[2]["topbarwidth"].Scale) + v[2]["topbarwidth"].Offset) / 2))
+                    local new = pos:Lerp(posToGoTo, 0.6)
+
+                    getgenv().guiElementsStoredDcBp[i][2]["position"] = new
+                    pos = new
+                end
+            end
             
             local borderColor = Color3.fromRGB(200,50,50)
             local mainColor = Color3.fromRGB(75,75,75)
@@ -241,8 +256,8 @@ module.render = function()
             drawLine(borderColor, z+0.1, 1, borderThickness, pointdl, pointul)
             
             local topBarPosition = Vector2.new(pointul:Lerp(pointur, 0.5).X, (pos.Y - (sizey * anchor.Y)) - (((absoluteY * v[2]["topbarwidth"].Scale) + v[2]["topbarwidth"].Offset) / 2))
-            getgenv().renderedUseForChildrenDcBp[v[2]["fullname"]] = {z, pointul:Lerp(pointdr, 0.5), Vector2.new(sizex, sizey)}
-            getgenv().renderedUseForChildrenDcBp[v[2]["fullname"].."TopBar"] = {z, topBarPosition, Vector2.new(sizex, (absoluteY * v[2]["topbarwidth"].Scale) + v[2]["topbarwidth"].Offset)}
+            getgenv().renderedUseForChildrenDcBp[v[2]["fullname"]] = {z, pointul:Lerp(pointdr, 0.5), Vector2.new(sizex, sizey), "windowFramme"}
+            getgenv().renderedUseForChildrenDcBp[v[2]["fullname"].."TopBar"] = {z, topBarPosition, Vector2.new(sizex, (absoluteY * v[2]["topbarwidth"].Scale) + v[2]["topbarwidth"].Offset), "windowTop"}
         else
             
         end
@@ -251,19 +266,52 @@ module.render = function()
     for i,v in pairs(getgenv().queueForNextRenderDcBp) do
         if v == "click" then
             local mousePos = Vector2.new(mouse.X, mouse.Y)
-
+            local mouseHovering = {}
             for i2, renderItem in pairs(getgenv().renderedUseForChildrenDcBp) do
                 local offset = Vector2.new(mousePos.X - renderItem[2].X, mousePos.Y - renderItem[2].Y)
                 --print(offset)
+                if math.abs(offset.X) < math.abs(renderItem[3].X/2) and math.abs(offset.Y) < math.abs(renderItem[3].Y/2) then
+                    mouseHovering[i2] = {offset, renderItem}
+                end
 
-                local subname = string.sub(i2, string.len(i2) - 5, string.len(i2))
-                if subname == "TopBar" then
-                    print(mousePos, renderItem[2])
-                    print(offset)
+            end
 
-                    if offset.X < math.abs(renderItem[3].X/2) and offset.Y < math.abs(renderItem[3].Y/2) then
-                        print("inside")
+            local best = nil
+            local bestname = nil
+            local offsetbest = nil
+            local bestz = nil
+            for i2, renderItem in pairs(mouseHovering) do
+                if not bestz then
+                    best = renderItem[2]
+                    bestz = renderItem[2][1]
+                    offsetbest = renderItem[1]
+                    bestname = i2
+                else
+                    if bestz < renderItem[2][1] then
+                        best = renderItem[2]
+                        bestz = renderItem[2][1]
+                        offsetbest = renderItem[1]
+                        bestname = i2
                     end
+                end
+            end
+
+            if best then
+                if best[4] == "windowTop" then
+                    local subname = string.sub(bestname, string.len(bestname) - 5, string.len(bestname))
+                    if subname == "TopBar" then
+                        print("inside")
+        
+                        table.insert(getgenv().savingVariablesDcBp, {bestname, "windowDrag", {offsetbest}})
+                    end
+                end
+            end
+        elseif v == "clickend" then
+            local offset = 0
+            for i2, found in pairs(getgenv().savingVariablesDcBp) do
+                if found[2] == "windowDrag" then
+                    table.remove(getgenv().savingVariablesDcBp, i2 - offset)
+                    offset = offset + 1
                 end
             end
         end
@@ -287,7 +335,7 @@ inputserv.InputBegan:Connect(function(input, gameproc)
 end)
 inputserv.InputEnded:Connect(function(input, gameproc)
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        
+        table.insert(getgenv().queueForNextRenderDcBp, "clickend")
     else
 
     end
