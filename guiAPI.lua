@@ -214,10 +214,6 @@ module.render = function()
 
             for i2, found in pairs(getgenv().savingVariablesDcBp) do
                 if found[2] == "windowDrag" and found[1] == v[2]["fullname"].."TopBar" then
-                    local pointul = Vector2.new(pos.X - (sizex * antianchor.X), pos.Y - (sizey * anchor.Y))
-                    local pointur = Vector2.new(pos.X + (sizex * anchor.X), pos.Y - (sizey * anchor.Y))
-
-                    local topBarPosition = Vector2.new(pointul:Lerp(pointur, 0.5).X, (pos.Y - (sizey * anchor.Y)) - (((absoluteY * v[2]["topbarwidth"].Scale) + v[2]["topbarwidth"].Offset) / 2))
                     local posToGoTo = (mousePos - found[3][1]) + (Vector2.new(0,(sizey * anchor.Y) + (((absoluteY * v[2]["topbarwidth"].Scale) + v[2]["topbarwidth"].Offset) / 2)))
                     local new = pos:Lerp(posToGoTo, 0.6)
 
@@ -242,41 +238,24 @@ module.render = function()
             local pointdl = Vector2.new(pos.X - (sizex * antianchor.X), pos.Y + (sizey * antianchor.Y))
             local pointdr = Vector2.new(pos.X + (sizex * anchor.X), pos.Y + (sizey * antianchor.Y))
 
-            local topLeftTab =  Vector2.new(pos.X - ((sizex * antianchor.X) - 20), pointul.Y - ((absoluteY * v[2]["topbarwidth"].Scale) + v[2]["topbarwidth"].Offset))
-            local topRightTab =  Vector2.new(pos.X + (sizex * anchor.X), pointul.Y - ((absoluteY * v[2]["topbarwidth"].Scale) + v[2]["topbarwidth"].Offset))
+            local topLeftTab =  Vector2.new(pos.X - ((sizex * antianchor.X) - 40), pointul.Y - ((absoluteY * v[2]["topbarwidth"].Scale) + v[2]["topbarwidth"].Offset))
+            local topRightTab =  Vector2.new(pos.X + ((sizex * anchor.X) + 40), pointul.Y - ((absoluteY * v[2]["topbarwidth"].Scale) + v[2]["topbarwidth"].Offset))
 
-            drawQuad(mainColor, z, 0.9, true, 10, pointul, pointur, pointdl, pointdr)
-            drawQuad(topBarColor, z, 0.9, true, 10, topLeftTab, topRightTab, pointul, pointur)
+            drawQuad(mainColor, z, 1, true, 10, pointul, pointur, pointdl, pointdr)
+            drawQuad(topBarColor, z, 1, true, 10, topLeftTab, topRightTab, pointul, pointur)
             if v[2]["imagebackground"] ~= nil then
                 drawImage(z + 0.1, 0.8, Vector2.new(sizex, sizey), pointul, v[2]["imagebackground"])
             end
             
-            local borderThickness = 2.5
-
-            drawPoint(pointColor, z + 2, 1, pointul, 1, borderThickness/1.5, true)
-            drawPoint(pointColor, z + 2, 1, pointur, 1, borderThickness/1.5, true)
-            drawPoint(pointColor, z + 2, 1, pointdl, 1, borderThickness/1.5, true)
-            drawPoint(pointColor, z + 2, 1, pointdr, 1, borderThickness/1.5, true)
-            drawPoint(pointColor, z + 2, 1, topLeftTab, 1, borderThickness/1.5, true)
-            drawPoint(pointColor, z + 2, 1, topRightTab, 1, borderThickness/1.5, true)
+            local borderThickness = 5
 
             drawLine(borderColor, z+1, 1, borderThickness, pointul, topLeftTab)
             drawLine(borderColor, z+1, 1, borderThickness, topLeftTab, topRightTab)
             drawLine(borderColor, z+1, 1, borderThickness, topRightTab, pointdr)
             drawLine(borderColor, z+1, 1, borderThickness, pointdr, pointdl)
             drawLine(borderColor, z+1, 1, borderThickness, pointdl, pointul)
-
-            drawLine(borderColor, z-1, 0.8, borderThickness/2, pos, pointul)
-            drawLine(borderColor, z-1, 0.8, borderThickness/2, pos, pointur)
-            drawLine(borderColor, z-1, 0.8, borderThickness/2, pos, pointdl)
-            drawLine(borderColor, z-1, 0.8, borderThickness/2, pos, pointdr)
             
             local topBarPosition = Vector2.new(pointul:Lerp(pointur, 0.5).X, (pos.Y - (sizey * anchor.Y)) - (((absoluteY * v[2]["topbarwidth"].Scale) + v[2]["topbarwidth"].Offset) / 2))
-
-            drawLine(borderColor, z-1, 0.8, borderThickness/2, topBarPosition, topLeftTab)
-            drawLine(borderColor, z-1, 0.8, borderThickness/2, topBarPosition, topRightTab)
-            drawLine(borderColor, z-1, 0.8, borderThickness/2, topBarPosition, pointur)
-            drawLine(borderColor, z-1, 0.8, borderThickness/2, topBarPosition, pointul)
 
             getgenv().renderedUseForChildrenDcBp[v[2]["fullname"]] = {z, pointul:Lerp(pointdr, 0.5), Vector2.new(sizex, sizey), "windowFramme"}
             getgenv().renderedUseForChildrenDcBp[v[2]["fullname"].."TopBar"] = {z, topBarPosition, Vector2.new(sizex, (absoluteY * v[2]["topbarwidth"].Scale) + v[2]["topbarwidth"].Offset), "windowTop"}
