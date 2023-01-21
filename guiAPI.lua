@@ -29,7 +29,32 @@ local function drawLine(color, z, transparency, tness, start, endp)
         draw.Thickness = tness
         draw.From = start
         draw.To = endp
+
+        local draw1 = Drawing.new("Circle")
+        draw1.Visible = true
+        draw1.ZIndex = z
+        draw1.Transparency = transparency
+        draw1.Color = color
+        draw1.Thickness = 1
+        draw1.Radius = tness
+        draw1.NumSides = 15
+        draw1.Filled = true
+        draw1.Position = endp
+
+        local draw2 = Drawing.new("Circle")
+        draw2.Visible = true
+        draw2.ZIndex = z
+        draw2.Transparency = transparency
+        draw2.Color = color
+        draw2.Thickness = 1
+        draw2.Radius = tness
+        draw2.NumSides = 15
+        draw2.Filled = true
+        draw2.Position = endp
+
         table.insert(getgenv().currentRenderedDcBp, draw)
+        table.insert(getgenv().currentRenderedDcBp, draw1)
+        table.insert(getgenv().currentRenderedDcBp, draw2)
     else
         
     end
@@ -183,7 +208,7 @@ module.render = function()
             drawQuad(mainColor, z, 0.9, true, 10, pointul, pointur, pointdl, pointdr)
             drawQuad(topBarColor, z, 0.9, true, 10, topLeftTab, topRightTab, pointul, pointur)
             
-            local borderThickness = 0.5
+            local borderThickness = 1.5
             drawLine(borderColor, z+0.1, 1, borderThickness, pointul, topLeftTab)
             drawLine(borderColor, z+0.1, 1, borderThickness, topLeftTab, topRightTab)
             drawLine(borderColor, z+0.1, 1, borderThickness, topRightTab, pointdr)
