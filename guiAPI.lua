@@ -87,7 +87,7 @@ local function drawImage(z, transparency, size, pos, data)
     if setting == "normal" then
 
     elseif setting == "synapse" then
-        local draw = Drawing.new("Quad")
+        local draw = Drawing.new("Image")
         draw.Visible = true
         draw.ZIndex = z
         draw.Transparency = transparency
