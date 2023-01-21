@@ -225,12 +225,10 @@ module.render = function()
             local borderColor = Color3.fromRGB(200,50,50)
             local mainColor = Color3.fromRGB(75,75,75)
             local topBarColor = Color3.fromRGB(25,25,25)
-            local pointColor = Color3.fromRGB(175,25,25)
             if v[2]["theme"] ~= "" and getgenv().colorThemesDcBp[v[2]["theme"]] ~= nil then
                 borderColor = getgenv().colorThemesDcBp[v[2]["theme"]]["border"]
                 mainColor = getgenv().colorThemesDcBp[v[2]["theme"]]["windowcolor"]
                 topBarColor = getgenv().colorThemesDcBp[v[2]["theme"]]["windowtopcolor"]
-                pointColor = getgenv().colorThemesDcBp[v[2]["theme"]]["borderpoint"]
             end 
 
             local pointul = Vector2.new(pos.X - (sizex * antianchor.X), pos.Y - (sizey * anchor.Y))
@@ -238,8 +236,8 @@ module.render = function()
             local pointdl = Vector2.new(pos.X - (sizex * antianchor.X), pos.Y + (sizey * antianchor.Y))
             local pointdr = Vector2.new(pos.X + (sizex * anchor.X), pos.Y + (sizey * antianchor.Y))
 
-            local topLeftTab =  Vector2.new(pos.X - ((sizex * antianchor.X) - 40), pointul.Y - ((absoluteY * v[2]["topbarwidth"].Scale) + v[2]["topbarwidth"].Offset))
-            local topRightTab =  Vector2.new(pos.X + ((sizex * anchor.X) - 40), pointul.Y - ((absoluteY * v[2]["topbarwidth"].Scale) + v[2]["topbarwidth"].Offset))
+            local topLeftTab =  Vector2.new(pos.X - ((sizex * antianchor.X) - 20), pointul.Y - ((absoluteY * v[2]["topbarwidth"].Scale) + v[2]["topbarwidth"].Offset))
+            local topRightTab =  Vector2.new(pos.X + ((sizex * anchor.X) - 20), pointul.Y - ((absoluteY * v[2]["topbarwidth"].Scale) + v[2]["topbarwidth"].Offset))
 
             drawQuad(mainColor, z, 1, true, 10, pointul, pointur, pointdl, pointdr)
             drawQuad(topBarColor, z, 1, true, 10, topLeftTab, topRightTab, pointul, pointur)
@@ -255,6 +253,13 @@ module.render = function()
             drawLine(borderColor, z+1, 1, borderThickness, pointur, pointdr)
             drawLine(borderColor, z+1, 1, borderThickness, pointdr, pointdl)
             drawLine(borderColor, z+1, 1, borderThickness, pointdl, pointul)
+
+            drawPoint(borderColor, z+1, 1, pointul, 0, borderThickness/2, true)
+            drawPoint(borderColor, z+1, 1, pointur, 0, borderThickness/2, true)
+            drawPoint(borderColor, z+1, 1, pointdl, 0, borderThickness/2, true)
+            drawPoint(borderColor, z+1, 1, pointdr, 0, borderThickness/2, true)
+            drawPoint(borderColor, z+1, 1, topLeftTab, 0, borderThickness/2, true)
+            drawPoint(borderColor, z+1, 1, topRightTab, 0, borderThickness/2, true)
             
             local topBarPosition = Vector2.new(pointul:Lerp(pointur, 0.5).X, (pos.Y - (sizey * anchor.Y)) - (((absoluteY * v[2]["topbarwidth"].Scale) + v[2]["topbarwidth"].Offset) / 2))
 
