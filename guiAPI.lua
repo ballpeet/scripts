@@ -38,7 +38,7 @@ local function drawLine(color, z, transparency, tness, start, endp)
         draw1.Transparency = transparency
         draw1.Color = color
         draw1.Thickness = 0.1
-        draw1.Radius = tness/4
+        draw1.Radius = tness/2
         draw1.NumSides = 15
         draw1.Filled = true
         draw1.Position = endp
@@ -49,7 +49,7 @@ local function drawLine(color, z, transparency, tness, start, endp)
         draw2.Transparency = transparency
         draw2.Color = color
         draw2.Thickness = 0.1
-        draw2.Radius = tness/4
+        draw2.Radius = tness/2
         draw2.NumSides = 15
         draw2.Filled = true
         draw2.Position = endp
@@ -240,7 +240,7 @@ module.render = function()
             drawLine(borderColor, z+0.1, 1, borderThickness, pointdl, pointul)
             
             local topBarPosition = Vector2.new(pointul:Lerp(pointur, 0.5).X, (pos.Y - (sizey * anchor.Y)) - (((absoluteY * v[2]["topbarwidth"].Scale) + v[2]["topbarwidth"].Offset) / 2))
-            getgenv().renderedUseForChildrenDcBp[v[2]["fullname"]] = {z, pos, Vector2.new(sizex, sizey)}
+            getgenv().renderedUseForChildrenDcBp[v[2]["fullname"]] = {z, pointul:Lerp(pointdr, 0.5), Vector2.new(sizex, sizey)}
             getgenv().renderedUseForChildrenDcBp[v[2]["fullname"].."TopBar"] = {z, topBarPosition, Vector2.new(sizex, (absoluteY * v[2]["topbarwidth"].Scale) + v[2]["topbarwidth"].Offset)}
         else
             
@@ -252,8 +252,11 @@ module.render = function()
             local mousePos = inputserv:GetMouseLocation()
 
             for i2, renderItem in pairs(getgenv().renderedUseForChildrenDcBp) do
-                print(string.sub(i2, string.len(i2) - 6, string.len(i2)))
-                if string.sub(i2, string.len(i2) - 6, string.len(i2)) == "TopBar" then
+                local offset = mousePos - renderItem[2]
+                print(offset)
+
+                local subname = string.sub(i2, string.len(i2) - 5, string.len(i2))
+                if subname == "TopBar" then
                     print"found the top bar"
                 end
             end
