@@ -212,6 +212,7 @@ module.render = function()
 
             for i2, found in pairs(getgenv().savingVariablesDcBp) do
                 if found[2] == "windowDrag" and found[1] == v[2]["fullname"] then
+                    print"dragging window"
                     local pointul = Vector2.new(pos.X - (sizex * antianchor.X), pos.Y - (sizey * anchor.Y))
                     local pointur = Vector2.new(pos.X + (sizex * anchor.X), pos.Y - (sizey * anchor.Y))
 
@@ -271,6 +272,7 @@ module.render = function()
                 local offset = Vector2.new(mousePos.X - renderItem[2].X, mousePos.Y - renderItem[2].Y)
                 --print(offset)
                 if math.abs(offset.X) < math.abs(renderItem[3].X/2) and math.abs(offset.Y) < math.abs(renderItem[3].Y/2) then
+                    print"adding"
                     mouseHovering[i2] = {offset, renderItem}
                 end
 
