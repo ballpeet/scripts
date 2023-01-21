@@ -218,7 +218,7 @@ module.render = function()
                     local pointur = Vector2.new(pos.X + (sizex * anchor.X), pos.Y - (sizey * anchor.Y))
 
                     local topBarPosition = Vector2.new(pointul:Lerp(pointur, 0.5).X, (pos.Y - (sizey * anchor.Y)) - (((absoluteY * v[2]["topbarwidth"].Scale) + v[2]["topbarwidth"].Offset) / 2))
-                    local posToGoTo = (mousePos - found[3][1]) - Vector2.new(0,(sizey * anchor.Y) - (((absoluteY * v[2]["topbarwidth"].Scale) + v[2]["topbarwidth"].Offset) / 2))
+                    local posToGoTo = (mousePos - found[3][1]) - Vector2.new(0,(sizey * anchor.Y) + (((absoluteY * v[2]["topbarwidth"].Scale) + v[2]["topbarwidth"].Offset) / 2))
                     local new = pos:Lerp(posToGoTo, 0.6)
 
                     getgenv().guiElementsStoredDcBp[i][2]["position"] = new
@@ -266,10 +266,10 @@ module.render = function()
             drawLine(borderColor, z+0.1, 1, borderThickness, pointdr, pointdl)
             drawLine(borderColor, z+0.1, 1, borderThickness, pointdl, pointul)
 
-            drawLine(borderColor, z-0.2, 0.8, borderThickness, pos, pointul)
-            drawLine(borderColor, z-0.2, 0.8, borderThickness, pos, pointur)
-            drawLine(borderColor, z-0.2, 0.8, borderThickness, pos, pointdl)
-            drawLine(borderColor, z-0.2, 0.8, borderThickness, pos, pointdr)
+            drawLine(borderColor, z-0.2, 0.8, borderThickness/2, pos, pointul)
+            drawLine(borderColor, z-0.2, 0.8, borderThickness/2, pos, pointur)
+            drawLine(borderColor, z-0.2, 0.8, borderThickness/2, pos, pointdl)
+            drawLine(borderColor, z-0.2, 0.8, borderThickness/2, pos, pointdr)
             
             local topBarPosition = Vector2.new(pointul:Lerp(pointur, 0.5).X, (pos.Y - (sizey * anchor.Y)) - (((absoluteY * v[2]["topbarwidth"].Scale) + v[2]["topbarwidth"].Offset) / 2))
 
@@ -277,10 +277,10 @@ module.render = function()
             drawPoint(pointColor, z + 0.3, 0.8, pos, 1, 4, true)
             drawLine(borderColor, z+0.2, 0.8, borderThickness/2, topBarPosition, pos)
 
-            drawLine(borderColor, z-0.2, 0.8, borderThickness, pos, topLeftTab)
-            drawLine(borderColor, z-0.2, 0.8, borderThickness, pos, topRightTab)
-            drawLine(borderColor, z-0.2, 0.8, borderThickness, pos, pointur)
-            drawLine(borderColor, z-0.2, 0.8, borderThickness, pos, pointul)
+            drawLine(borderColor, z-0.2, 0.8, borderThickness/2, topBarPosition, topLeftTab)
+            drawLine(borderColor, z-0.2, 0.8, borderThickness/2, topBarPosition, topRightTab)
+            drawLine(borderColor, z-0.2, 0.8, borderThickness/2, topBarPosition, pointur)
+            drawLine(borderColor, z-0.2, 0.8, borderThickness/2, topBarPosition, pointul)
 
             getgenv().renderedUseForChildrenDcBp[v[2]["fullname"]] = {z, pointul:Lerp(pointdr, 0.5), Vector2.new(sizex, sizey), "windowFramme"}
             getgenv().renderedUseForChildrenDcBp[v[2]["fullname"].."TopBar"] = {z, topBarPosition, Vector2.new(sizex, (absoluteY * v[2]["topbarwidth"].Scale) + v[2]["topbarwidth"].Offset), "windowTop"}
