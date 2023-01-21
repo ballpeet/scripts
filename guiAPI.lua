@@ -180,10 +180,10 @@ module.render = function()
             local topLeftTab =  Vector2.new(pos.X - ((sizex * antianchor.X) - 20), pointul.Y - ((absoluteY * v[2]["topbarwidth"].Scale) + v[2]["topbarwidth"].Offset))
             local topRightTab =  Vector2.new(pos.X + (sizex * anchor.X), pointul.Y - ((absoluteY * v[2]["topbarwidth"].Scale) + v[2]["topbarwidth"].Offset))
 
-            drawQuad(mainColor, z, 0.9, true, 1, pointul, pointur, pointdl, pointdr)
-            drawQuad(topBarColor, z, 0.9, true, 1, topLeftTab, topRightTab, pointul, pointur)
+            drawQuad(mainColor, z, 0.9, true, 10, pointul, pointur, pointdl, pointdr)
+            drawQuad(topBarColor, z, 0.9, true, 10, topLeftTab, topRightTab, pointul, pointur)
             
-            local borderThickness = 4
+            local borderThickness = 20
             drawLine(borderColor, z+0.1, 1, borderThickness, pointul, topLeftTab)
             drawLine(borderColor, z+0.1, 1, borderThickness, topLeftTab, topRightTab)
             drawLine(borderColor, z+0.1, 1, borderThickness, topRightTab, pointdr)
@@ -201,9 +201,13 @@ module.render = function()
 end
 
 local runserv = game:GetService("RunService")
+local tally = 0
 runserv.RenderStepped:Connect(function(delta)
-    module.clear()
-    module.render()
+    tally = math.fmod(tally + 1, 3)
+    if tally == 1 then
+        module.clear()
+        module.render()
+    end
 end)
 
 return module
