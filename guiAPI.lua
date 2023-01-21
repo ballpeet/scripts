@@ -6,6 +6,8 @@ getgenv().guiElementsStoredDcBp = {}
 getgenv().currentRenderedDcBp = {}
 getgenv().renderedUseForChildrenDcBp = {}
 getgenv().colorThemesDcBp = {}
+getgenv().queueForNextRenderDcBp = {}
+getgenv().savingVariablesDcBp = {}
 
 local setting = "normal"
 if syn then
@@ -36,7 +38,7 @@ local function drawLine(color, z, transparency, tness, start, endp)
         draw1.Transparency = transparency
         draw1.Color = color
         draw1.Thickness = 0.1
-        draw1.Radius = tness/2
+        draw1.Radius = tness/4
         draw1.NumSides = 15
         draw1.Filled = true
         draw1.Position = endp
@@ -193,6 +195,7 @@ module.clear = function()
     getgenv().renderedUseForChildrenDcBp = {}
     return
 end
+local inputserv = game:GetService("UserInputService")
 module.render = function()
     local absoluteX = getgenv().screenGUI.AbsoluteSize.X
     local absoluteY = getgenv().screenGUI.AbsoluteSize.Y
@@ -226,10 +229,10 @@ module.render = function()
             drawQuad(mainColor, z, 0.9, true, 10, pointul, pointur, pointdl, pointdr)
             drawQuad(topBarColor, z, 0.9, true, 10, topLeftTab, topRightTab, pointul, pointur)
             if v[2]["imagebackground"] ~= nil then
-                drawImage(z + 0.1, 1, Vector2.new(sizex, sizey), pointul:Lerp(pointdr, 0.5), v[2]["imagebackground"])
+                drawImage(z + 0.1, 1, Vector2.new(sizex, sizey), pointul, v[2]["imagebackground"])
             end
             
-            local borderThickness = 3.75
+            local borderThickness = 4.5
             drawLine(borderColor, z+0.1, 1, borderThickness, pointul, topLeftTab)
             drawLine(borderColor, z+0.1, 1, borderThickness, topLeftTab, topRightTab)
             drawLine(borderColor, z+0.1, 1, borderThickness, topRightTab, pointdr)
@@ -243,6 +246,20 @@ module.render = function()
             
         end
     end
+
+    for i,v in pairs(getgenv().queueForNextRenderDcBp) do
+        if v == "click" then
+            local mousePos = inputserv:GetMouseLocation()
+
+            for i2, renderItem in pairs(getgenv().renderedUseForChildrenDcBp) do
+                print(string.sub(i2, string.len(i2) - 6, string.len(i2)))
+                if string.sub(i2, string.len(i2) - 6, string.len(i2)) == "TopBar" then
+                    print"found the top bar"
+                end
+            end
+        end
+    end
+    getgenv().queueForNextRenderDcBp = {}
     return
 end
 
@@ -250,6 +267,21 @@ local runserv = game:GetService("RunService")
 runserv.PreRender:Connect(function(delta)
     module.clear()
     module.render()
+end)
+
+inputserv.InputBegan:Connect(function(input, gameproc)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        table.insert(getgenv().queueForNextRenderDcBp, "click")
+    else
+
+    end
+end)
+inputserv.InputEnded:Connect(function(input, gameproc)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        
+    else
+
+    end
 end)
 
 return module
