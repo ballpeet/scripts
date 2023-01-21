@@ -249,7 +249,7 @@ module.render = function()
 
     for i,v in pairs(getgenv().queueForNextRenderDcBp) do
         if v == "click" then
-            local mousePos = inputserv:GetMouseLocation()
+            local mousePos = inputserv:GetMouseLocation() - Vector2.new(0, 300)
 
             for i2, renderItem in pairs(getgenv().renderedUseForChildrenDcBp) do
                 print(mousePos, renderItem[2])
