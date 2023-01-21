@@ -206,4 +206,4 @@ runserv.RenderStepped:Connect(function(delta)
     module.render()
 end)
 
-return module
+_G.guiApiDcBp = module
