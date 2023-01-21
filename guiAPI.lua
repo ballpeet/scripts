@@ -252,12 +252,13 @@ module.render = function()
             local mousePos = inputserv:GetMouseLocation()
 
             for i2, renderItem in pairs(getgenv().renderedUseForChildrenDcBp) do
-                local offset = mousePos - renderItem[2]
+                print(mousePos, renderItem[2])
+                local offset = Vector2.new(mousePos.X - renderItem[2].X, mousePos.Y - renderItem[2].Y)
                 print(offset)
 
                 local subname = string.sub(i2, string.len(i2) - 5, string.len(i2))
                 if subname == "TopBar" then
-                    print"found the top bar"
+                    
                 end
             end
         end
