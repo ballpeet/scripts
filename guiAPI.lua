@@ -239,7 +239,7 @@ module.render = function()
             local pointdr = Vector2.new(pos.X + (sizex * anchor.X), pos.Y + (sizey * antianchor.Y))
 
             local topLeftTab =  Vector2.new(pos.X - ((sizex * antianchor.X) - 40), pointul.Y - ((absoluteY * v[2]["topbarwidth"].Scale) + v[2]["topbarwidth"].Offset))
-            local topRightTab =  Vector2.new(pos.X + ((sizex * anchor.X) + 40), pointul.Y - ((absoluteY * v[2]["topbarwidth"].Scale) + v[2]["topbarwidth"].Offset))
+            local topRightTab =  Vector2.new(pos.X + ((sizex * anchor.X) - 40), pointul.Y - ((absoluteY * v[2]["topbarwidth"].Scale) + v[2]["topbarwidth"].Offset))
 
             drawQuad(mainColor, z, 1, true, 10, pointul, pointur, pointdl, pointdr)
             drawQuad(topBarColor, z, 1, true, 10, topLeftTab, topRightTab, pointul, pointur)
@@ -251,7 +251,8 @@ module.render = function()
 
             drawLine(borderColor, z+1, 1, borderThickness, pointul, topLeftTab)
             drawLine(borderColor, z+1, 1, borderThickness, topLeftTab, topRightTab)
-            drawLine(borderColor, z+1, 1, borderThickness, topRightTab, pointdr)
+            drawLine(borderColor, z+1, 1, borderThickness, topRightTab, pointur)
+            drawLine(borderColor, z+1, 1, borderThickness, pointur, pointdr)
             drawLine(borderColor, z+1, 1, borderThickness, pointdr, pointdl)
             drawLine(borderColor, z+1, 1, borderThickness, pointdl, pointul)
             
