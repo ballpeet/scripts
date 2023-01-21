@@ -15,7 +15,7 @@ if syn then
 end
 
 getgenv().screenGUI = Instance.new("ScreenGui")
-getgenv().screenGUI.IgnoreGuiInset = true
+getgenv().screenGUI.IgnoreGuiInset = false
 getgenv().screenGUI.ResetOnSpawn = false
 getgenv().screenGUI.Parent = plrs.LocalPlayer.PlayerGui
 local mouse = plrs.LocalPlayer:GetMouse()
