@@ -273,10 +273,6 @@ module.render = function()
             
             local topBarPosition = Vector2.new(pointul:Lerp(pointur, 0.5).X, (pos.Y - (sizey * anchor.Y)) - (((absoluteY * v[2]["topbarwidth"].Scale) + v[2]["topbarwidth"].Offset) / 2))
 
-            drawPoint(pointColor, z + 0.3, 0.8, topBarPosition, 1, 4, true)
-            drawPoint(pointColor, z + 0.3, 0.8, pos, 1, 4, true)
-            drawLine(borderColor, z+0.2, 0.8, borderThickness/2, topBarPosition, pos)
-
             drawLine(borderColor, z-0.2, 0.8, borderThickness/2, topBarPosition, topLeftTab)
             drawLine(borderColor, z-0.2, 0.8, borderThickness/2, topBarPosition, topRightTab)
             drawLine(borderColor, z-0.2, 0.8, borderThickness/2, topBarPosition, pointur)
