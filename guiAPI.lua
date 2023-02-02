@@ -30,6 +30,7 @@ local function drawLine(color, z, transparency, tness, start, endp)
         draw.Thickness = tness
         draw.From = start
         draw.To = endp
+        table.insert(getgenv().currentRenderedDcBp, draw)
     elseif setting == "synapse" then
         local draw = Drawing.new("Line")
         draw.Visible = true
@@ -59,6 +60,7 @@ local function drawPoint(color, z, transparency, pos, tness, radius, filled)
         draw.NumSides = 15
         draw.Filled = filled
         draw.Position = pos
+        table.insert(getgenv().currentRenderedDcBp, draw)
     elseif setting == "synapse" then
         local draw = Drawing.new("Circle")
         draw.Visible = true
@@ -91,6 +93,7 @@ local function drawQuad(color, z, transparency, filled, tness, topleft, topright
         draw.PointB = topleft
         draw.PointC = bleft
         draw.PointD = bright
+        table.insert(getgenv().currentRenderedDcBp, draw)
     elseif setting == "synapse" then
         local draw = Drawing.new("Quad")
         draw.Visible = true
@@ -119,6 +122,7 @@ local function drawImage(z, transparency, size, pos, data)
         draw.Data = data
         draw.Size = size
         draw.Position = pos
+        table.insert(getgenv().currentRenderedDcBp, draw)
     elseif setting == "synapse" then
         local draw = Drawing.new("Image")
         draw.Visible = true
@@ -228,7 +232,9 @@ end
 
 module.clear = function()
     if setting == "scriptwr" then
-        cleardrawcache()
+        for i,v in pairs(getgenv().currentRenderedDcBp) do
+            v:Destroy()
+        end
     elseif setting == "synapse" then
         for i,v in pairs(getgenv().currentRenderedDcBp) do
             v.Remove()
