@@ -292,19 +292,19 @@ module.render = function()
             
             local borderThickness = 5
 
-            drawLine(borderColor, z+1, 1, borderThickness, pointul, topLeftTab)
-            drawLine(borderColor, z+1, 1, borderThickness, topLeftTab, topRightTab)
-            drawLine(borderColor, z+1, 1, borderThickness, topRightTab, pointur)
-            drawLine(borderColor, z+1, 1, borderThickness, pointur, pointdr)
-            drawLine(borderColor, z+1, 1, borderThickness, pointdr, pointdl)
-            drawLine(borderColor, z+1, 1, borderThickness, pointdl, pointul)
+            drawLine(borderColor, z+200, 1, borderThickness, pointul, topLeftTab)
+            drawLine(borderColor, z+200, 1, borderThickness, topLeftTab, topRightTab)
+            drawLine(borderColor, z+200, 1, borderThickness, topRightTab, pointur)
+            drawLine(borderColor, z+200, 1, borderThickness, pointur, pointdr)
+            drawLine(borderColor, z+200, 1, borderThickness, pointdr, pointdl)
+            drawLine(borderColor, z+200, 1, borderThickness, pointdl, pointul)
 
-            drawPoint(borderColor, z+1, 1, pointul, 0, borderThickness/2, true)
-            drawPoint(borderColor, z+1, 1, pointur, 0, borderThickness/2, true)
-            drawPoint(borderColor, z+1, 1, pointdl, 0, borderThickness/2, true)
-            drawPoint(borderColor, z+1, 1, pointdr, 0, borderThickness/2, true)
-            drawPoint(borderColor, z+1, 1, topLeftTab, 0, borderThickness/2, true)
-            drawPoint(borderColor, z+1, 1, topRightTab, 0, borderThickness/2, true)
+            drawPoint(borderColor, z+200, 1, pointul, 0, borderThickness/2, true)
+            drawPoint(borderColor, z+200, 1, pointur, 0, borderThickness/2, true)
+            drawPoint(borderColor, z+200, 1, pointdl, 0, borderThickness/2, true)
+            drawPoint(borderColor, z+200, 1, pointdr, 0, borderThickness/2, true)
+            drawPoint(borderColor, z+200, 1, topLeftTab, 0, borderThickness/2, true)
+            drawPoint(borderColor, z+200, 1, topRightTab, 0, borderThickness/2, true)
             
             local topBarPosition = Vector2.new(pointul:Lerp(pointur, 0.5).X, (pos.Y - (sizey * anchor.Y)) - (((absoluteY * v[2]["topbarwidth"].Scale) + v[2]["topbarwidth"].Offset) / 2))
 
