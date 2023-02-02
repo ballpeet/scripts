@@ -13,16 +13,23 @@ local setting = "normal"
 if syn then
     setting = "synapse"
 end
+if getfpscap then
+    setting = "scriptwr"
+end
+local seperatorForParents = "/1.<251/"
 
-getgenv().screenGUI = Instance.new("ScreenGui")
-getgenv().screenGUI.IgnoreGuiInset = true
-getgenv().screenGUI.ResetOnSpawn = false
-getgenv().screenGUI.Parent = plrs.LocalPlayer.PlayerGui
 local mouse = plrs.LocalPlayer:GetMouse()
 
 local function drawLine(color, z, transparency, tness, start, endp)
-    if setting == "normal" then
-
+    if setting == "scriptwr" then
+        local draw = Drawing.new("Line", true)
+        draw.Visible = true
+        draw.ZIndex = z
+        draw.Transparency = transparency
+        draw.Color = color
+        draw.Thickness = tness
+        draw.From = start
+        draw.To = endp
     elseif setting == "synapse" then
         local draw = Drawing.new("Line")
         draw.Visible = true
@@ -41,8 +48,17 @@ local function drawLine(color, z, transparency, tness, start, endp)
 end
 
 local function drawPoint(color, z, transparency, pos, tness, radius, filled)
-    if setting == "normal" then
-
+    if setting == "scriptwr" then
+        local draw = Drawing.new("Circle", true)
+        draw.Visible = true
+        draw.ZIndex = z
+        draw.Transparency = transparency
+        draw.Color = color
+        draw.Thickness = tness
+        draw.Radius = radius
+        draw.NumSides = 15
+        draw.Filled = filled
+        draw.Position = pos
     elseif setting == "synapse" then
         local draw = Drawing.new("Circle")
         draw.Visible = true
@@ -63,8 +79,18 @@ local function drawPoint(color, z, transparency, pos, tness, radius, filled)
 end
 
 local function drawQuad(color, z, transparency, filled, tness, topleft, topright, bleft, bright)
-    if setting == "normal" then
-
+    if setting == "scriptwr" then
+        local draw = Drawing.new("Quad", true)
+        draw.Visible = true
+        draw.ZIndex = z
+        draw.Transparency = transparency
+        draw.Color = color
+        draw.Filled = filled
+        draw.Thickness = tness
+        draw.PointA = topright
+        draw.PointB = topleft
+        draw.PointC = bleft
+        draw.PointD = bright
     elseif setting == "synapse" then
         local draw = Drawing.new("Quad")
         draw.Visible = true
@@ -85,8 +111,14 @@ local function drawQuad(color, z, transparency, filled, tness, topleft, topright
 end
 
 local function drawImage(z, transparency, size, pos, data)
-    if setting == "normal" then
-
+    if setting == "scriptwr" then
+        local draw = Drawing.new("Image", true)
+        draw.Visible = true
+        draw.ZIndex = z
+        draw.Transparency = transparency
+        draw.Data = data
+        draw.Size = size
+        draw.Position = pos
     elseif setting == "synapse" then
         local draw = Drawing.new("Image")
         draw.Visible = true
@@ -149,14 +181,15 @@ module.newWindow = function(variables)
         ["position"] = Vector2.new(getgenv().screenGUI.AbsoluteSize.X/2,getgenv().screenGUI.AbsoluteSize.Y/2),
         ["z"] = 1,
         ["parent"] = "",
-        ["theme"] = ""
+        ["enabled"] = true,
+        ["theme"] = "",
     }
     if variables then
         for i,v in pairs(variables) do
             totalvals[i] = v
         end
     end
-    totalvals["fullname"] = totalvals["parent"].."/"..totalvals["name"]
+    totalvals["fullname"] = totalvals["parent"]..seperatorForParents..totalvals["name"]
     
     local newTable = {
         "window", totalvals
@@ -169,6 +202,20 @@ module.newWindow = function(variables)
     funcs.getTopBarName = function()
         return totalvals["fullname"].."TopBar"
     end
+    funcs.disable = function()
+        for i,v in pairs(getgenv().guiElementsStoredDcBp) do
+            if v[2]["fullname"] == totalvals["fullname"] then
+                getgenv().guiElementsStoredDcBp[i][2]["enabled"] = false
+            end
+        end
+    end
+    funcs.enable = function()
+        for i,v in pairs(getgenv().guiElementsStoredDcBp) do
+            if v[2]["fullname"] == totalvals["fullname"] then
+                getgenv().guiElementsStoredDcBp[i][2]["enabled"] = true
+            end
+        end
+    end
     funcs.remove = function()
         for i,v in pairs(getgenv().guiElementsStoredDcBp) do
             if v[2]["fullname"] == totalvals["fullname"] then
@@ -180,10 +227,8 @@ module.newWindow = function(variables)
 end
 
 module.clear = function()
-    if setting == "normal" then
-        for i,v in pairs(getgenv().currentRenderedDcBp) do
-            v:Destroy()
-        end
+    if setting == "scriptwr" then
+        cleardrawcache()
     elseif setting == "synapse" then
         for i,v in pairs(getgenv().currentRenderedDcBp) do
             v.Remove()
@@ -200,8 +245,8 @@ module.render = function()
     local mousePos = Vector2.new(mouse.X, mouse.Y + 36)
     drawPoint(Color3.fromRGB(255,255,255), 10, 1, mousePos, 1, 10, true)
 
-    local absoluteX = getgenv().screenGUI.AbsoluteSize.X
-    local absoluteY = getgenv().screenGUI.AbsoluteSize.Y
+    local absoluteX = game.Workspace.Camera.ViewportSize.X
+    local absoluteY = game.Workspace.Camera.ViewportSize.Y
     for i,v in pairs(getgenv().guiElementsStoredDcBp) do
         if v[1] == "window" then
             local sizex = (absoluteX * v[2]["size"].X.Scale) + v[2]["size"].X.Offset
@@ -240,7 +285,7 @@ module.render = function()
             local topRightTab =  Vector2.new(pos.X + ((sizex * anchor.X) - 20), pointul.Y - ((absoluteY * v[2]["topbarwidth"].Scale) + v[2]["topbarwidth"].Offset))
 
             drawQuad(mainColor, z, 1, true, 10, pointul, pointur, pointdl, pointdr)
-            drawQuad(topBarColor, z, 1, true, 10, topLeftTab, topRightTab, pointul, pointur)
+            drawQuad(topBarColor, z + 200, 1, true, 10, topLeftTab, topRightTab, pointul, pointur)
             if v[2]["imagebackground"] ~= nil then
                 drawImage(z + 0.1, 0.8, Vector2.new(sizex, sizey), pointul, v[2]["imagebackground"])
             end
