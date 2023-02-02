@@ -22,7 +22,7 @@ local mouse = plrs.LocalPlayer:GetMouse()
 
 local function drawLine(color, z, transparency, tness, start, endp)
     if setting == "scriptwr" then
-        local draw = Drawing.new("Line", true)
+        local draw = Drawing.new("Line")
         draw.Visible = true
         draw.ZIndex = z
         draw.Transparency = transparency
@@ -49,7 +49,7 @@ end
 
 local function drawPoint(color, z, transparency, pos, tness, radius, filled)
     if setting == "scriptwr" then
-        local draw = Drawing.new("Circle", true)
+        local draw = Drawing.new("Circle")
         draw.Visible = true
         draw.ZIndex = z
         draw.Transparency = transparency
@@ -80,7 +80,7 @@ end
 
 local function drawQuad(color, z, transparency, filled, tness, topleft, topright, bleft, bright)
     if setting == "scriptwr" then
-        local draw = Drawing.new("Quad", true)
+        local draw = Drawing.new("Quad")
         draw.Visible = true
         draw.ZIndex = z
         draw.Transparency = transparency
@@ -112,7 +112,7 @@ end
 
 local function drawImage(z, transparency, size, pos, data)
     if setting == "scriptwr" then
-        local draw = Drawing.new("Image", true)
+        local draw = Drawing.new("Image")
         draw.Visible = true
         draw.ZIndex = z
         draw.Transparency = transparency
