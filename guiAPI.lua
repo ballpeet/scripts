@@ -291,7 +291,7 @@ module.render = function()
             local topRightTab =  Vector2.new(pos.X + ((sizex * anchor.X) - 20), pointul.Y - ((absoluteY * v[2]["topbarwidth"].Scale) + v[2]["topbarwidth"].Offset))
 
             drawQuad(mainColor, z, 1, true, 10, pointul, pointur, pointdl, pointdr)
-            drawQuad(topBarColor, z + 200, 1, true, 10, topLeftTab, topRightTab, pointul, pointur)
+            drawQuad(topBarColor, z + 100, 1, true, 10, topLeftTab, topRightTab, pointul, pointur)
             if v[2]["imagebackground"] ~= nil then
                 drawImage(z + 0.1, 0.8, Vector2.new(sizex, sizey), pointul, v[2]["imagebackground"])
             end
