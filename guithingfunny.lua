@@ -1,3 +1,13 @@
+local players = game:GetService("Players")
+local player = players.LocalPlayer
+local mouse = player:GetMouse()
+local char = player.Character
+
+local debrisServ = game:GetService("Debris")
+local inputServ = game:GetService("UserInputService")
+local runServ = game:GetService("RunService")
+local tweenServ = game:GetService("TweenService")
+
 local guiAPI = {}
 getgenv().savedConnections = {}
 getgenv().closed = false
