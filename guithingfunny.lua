@@ -1,4 +1,6 @@
 local guiAPI = {}
+getgenv().savedConnections = {}
+getgenv().closed = false
 
 local newScreenGUI = Instance.new("ScreenGui")
 newScreenGUI.Parent = game:GetService("CoreGui")
@@ -8,7 +10,7 @@ newScreenGUI.IgnoreGuiInset = false
 local moveableWindows = {}
 local colorSchemes = {}
 local thingsInTabs = {}
-local buttonValues = {}
+getgenv().buttonValues = {}
 
 -- dbm barnacle crash
 
@@ -74,9 +76,9 @@ local function updateInfo(frame)
 						label.Parent = basisscroll
 					elseif guiType == "togglebutton1" then
 						local function getIfHas()
-							if buttonValues[v[4]["togglename"]] == true then
+							if getgenv().buttonValues[v[4]["togglename"]] == true then
 								return true
-							elseif buttonValues[v[4]["togglename"]] == false then
+							elseif getgenv().buttonValues[v[4]["togglename"]] == false then
 								return false
 							end
 						end
@@ -160,10 +162,10 @@ local function updateInfo(frame)
 								local hasgot = getIfHas()
 								clickSound()
 								if hasgot == true then
-									buttonValues[v[4]["togglename"]] = false
+									getgenv().buttonValues[v[4]["togglename"]] = false
 									buttontoggle()
 								elseif hasgot == false then
-									buttonValues[v[4]["togglename"]] = true
+									getgenv().buttonValues[v[4]["togglename"]] = true
 									buttontoggle()
 								end
 							end)
@@ -219,10 +221,10 @@ local function updateInfo(frame)
 								local hasgot = getIfHas()
 								clickSound()
 								if hasgot == true then
-									buttonValues[v[4]["togglename"]] = false
+									getgenv().buttonValues[v[4]["togglename"]] = false
 									buttontoggle()
 								elseif hasgot == false then
-									buttonValues[v[4]["togglename"]] = true
+									getgenv().buttonValues[v[4]["togglename"]] = true
 									buttontoggle()
 								end
 							end)
@@ -450,18 +452,18 @@ local function updateInfo(frame)
 						textlabel.Parent = baseframe
 
 						local function updateDisplay()
-							textlabel.Text = tostring(math.floor(buttonValues[v[4]["varname"]]*1000)/1000)
+							textlabel.Text = tostring(math.floor(getgenv().buttonValues[v[4]["varname"]]*1000)/1000)
 						end
 
 						updateDisplay()
 
 						upbutton.Activated:Connect(function()
-							buttonValues[v[4]["varname"]] = math.clamp(buttonValues[v[4]["varname"]] + v[4]["inc"], v[4]["minnum"], v[4]["maxnum"])
+							buttonValues[v[4]["varname"]] = math.clamp(getgenv().buttonValues[v[4]["varname"]] + v[4]["inc"], v[4]["minnum"], v[4]["maxnum"])
 							updateDisplay()
 							clickSound()
 						end)
 						downbutton.Activated:Connect(function()
-							buttonValues[v[4]["varname"]] = math.clamp(buttonValues[v[4]["varname"]] - v[4]["inc"], v[4]["minnum"], v[4]["maxnum"])
+							buttonValues[v[4]["varname"]] = math.clamp(getgenv().buttonValues[v[4]["varname"]] - v[4]["inc"], v[4]["minnum"], v[4]["maxnum"])
 							updateDisplay()
 							clickSound()
 						end)
@@ -733,10 +735,10 @@ local amtofobjects = 0
 guiAPI.newTabObject = function(tab, parent, typeObject, typeData)
 	amtofobjects = amtofobjects + 1
 	if typeObject == "togglebutton1" then
-		buttonValues[typeData["togglename"]] = false
+		getgenv().buttonValues[typeData["togglename"]] = false
 	end
 	if typeObject == "numberbox" then
-		buttonValues[typeData["varname"]] = typeData["startnum"]
+		getgenv().buttonValues[typeData["varname"]] = typeData["startnum"]
 	end
 
 	local key = ""
