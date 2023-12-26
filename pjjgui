@@ -1,0 +1,2718 @@
+_G.noCooldownActive = false
+_G.printInfoToConsole = function(str, typ)
+	if not typ then
+		typ = "base"
+	end
+
+	if typ == "base" then
+		print(str)
+	elseif typ == "warn" then
+		warn(str)
+	end
+end
+_G.printTable = function (tablegot, indent, printfunctions)
+    local before = string.rep("-", (indent - 1) * 3)
+    for i2,varg in pairs(tablegot) do
+        local class = typeof(varg)
+        if class == "Instance" then
+            local total = tostring(i2).." = "..varg:GetFullName()..":"..varg.ClassName
+            printInfoToConsole(before..total)
+        elseif class == "table" then
+            local total = tostring(i2).." = "..tostring(varg)..":"..tostring(class)
+            printInfoToConsole(before..total)
+            printTable(varg, indent + 1, printfunctions)
+        elseif class == "function" then
+            local total = tostring(i2).." = "..tostring(varg).."("..tostring(getinfo(varg).name).."):"..tostring(class)
+            printInfoToConsole(before..total)
+
+			if printfunctions == true then
+				local success, errormes = pcall(function()
+					printInfoToConsole(before.."- CONSTANTS")
+					printTable(debug.getconstants(varg), indent + 1, printfunctions)
+					printInfoToConsole(before.."- UPVALUES")
+					printTable(debug.getupvalues(varg), indent + 1, printfunctions)
+					printInfoToConsole(before.."- PROTOS")
+					printTable(debug.getprotos(varg), indent + 1, printfunctions)
+				end)
+				if not success then
+					printInfoToConsole(errormes, "warn")
+				end
+			end
+        else
+            local total = tostring(i2).." = "..tostring(varg)..":"..tostring(class)
+            printInfoToConsole(before..total)
+        end
+
+    end
+end
+_G.standScriptsBpDc = {}
+_G.hookedBpDc = {}
+_G.connectionsToRemoveBpDc = {}
+
+local players = game:GetService("Players")
+local player = players.LocalPlayer
+local mouse = player:GetMouse()
+local char = player.Character
+local standValue = player:WaitForChild("Stand")
+local fuseValue = player:WaitForChild("FusedStand")
+
+local debrisServ = game:GetService("Debris")
+local inputServ = game:GetService("UserInputService")
+local runServ = game:GetService("RunService")
+local tweenServ = game:GetService("TweenService")
+
+--- start of api
+local guiAPI = {}
+
+local newScreenGUI = Instance.new("ScreenGui")
+newScreenGUI.Parent = game:GetService("CoreGui")
+newScreenGUI.ResetOnSpawn = false
+newScreenGUI.IgnoreGuiInset = false 
+
+local moveableWindows = {}
+local colorSchemes = {}
+local thingsInTabs = {}
+local buttonValues = {}
+
+-- dbm barnacle crash
+
+local function clickSound()
+	local sound = Instance.new("Sound")
+	sound.SoundId = "rbxassetid://2037448430"
+	sound.Volume = 0.4
+	sound.PlaybackSpeed = 1.1
+	sound.Parent = newScreenGUI
+	sound:Play()
+	debrisServ:AddItem(sound, 1)
+end
+
+local function updateInfo(frame)
+	local success, errormes = pcall(function()
+		local valuething = nil
+		local basisframe = nil
+		local basisscroll = nil
+
+		valuething = frame:FindFirstChildOfClass("StringValue")
+
+		basisframe = frame:FindFirstChild("Content")
+		if basisframe then
+			basisscroll = basisframe:FindFirstChildOfClass("ScrollingFrame")
+		end
+
+		if valuething and basisframe and basisscroll then
+			for i,v in pairs(basisscroll:GetChildren()) do
+				if not v:IsA("UIListLayout") and not v:IsA("UIGridLayout") then
+					v:Destroy()
+				end
+			end
+
+			for key,v in pairs(thingsInTabs) do
+				if v[1] == valuething.Value and v[2] == frame then
+					local i = v[5]
+					if v[4]["LayoutOrder"] then
+						i = v[4]["LayoutOrder"]
+					end
+					local guiType = v[3]
+
+					if guiType == "textlabel" then
+						local label = Instance.new("TextLabel")
+						label.BackgroundTransparency = v[4]["backgroundtransparency"]
+						local size = UDim2.new(0,0,0,0)
+						if v[4]["scalewithlines"] == true then
+							local _, count = v[4]["text"]:gsub("\n", "")
+							if count == 0 then
+								count = 1
+							end
+							size = UDim2.new(v[4]["size"].X.Scale, v[4]["size"].X.Offset, v[4]["size"].Y.Scale * count, v[4]["size"].Y.Offset * count)
+						else
+							size = v[4]["size"]
+						end
+						label.Size = size
+						label.BorderSizePixel = 0
+						label.BackgroundColor3 = v[4]["backgroundcolor"]
+						label.Text = v[4]["text"]
+						label.TextColor3 = v[4]["color"]
+						label.Font = v[4]["font"]
+						label.TextScaled = true
+						label.LayoutOrder = i
+						label.Parent = basisscroll
+					elseif guiType == "togglebutton1" then
+						local function getIfHas()
+							if buttonValues[v[4]["togglename"]] == true then
+								return true
+							elseif buttonValues[v[4]["togglename"]] == false then
+								return false
+							end
+						end
+
+						if v[4]["style"] == "switch" then
+							local baseframe = Instance.new("Frame")
+							baseframe.BorderSizePixel = 0
+							baseframe.BackgroundTransparency = v[4]["backgroundtransparency"]
+							baseframe.Size = v[4]["size"]
+							baseframe.BackgroundColor3 = v[4]["backgroundcolor"]
+							baseframe.LayoutOrder = i
+							baseframe.Parent = basisscroll
+
+							local label = Instance.new("TextLabel")
+							label.BackgroundTransparency = 1
+							label.Size = UDim2.new(0.75,0,1,0)
+							label.Text = v[4]["text"]
+							label.Font = v[4]["font"]
+							label.TextColor3 = v[4]["color"]
+							label.TextScaled = true
+							label.TextXAlignment = Enum.TextXAlignment.Left
+							label.Parent = baseframe
+
+							local buttonFrame = Instance.new("Frame")
+							buttonFrame.Size = UDim2.new(0.25,0,0.8,0)
+							buttonFrame.AnchorPoint = Vector2.new(1,0.5)
+							buttonFrame.Position = UDim2.new(1,0,0.5,0)
+							buttonFrame.BackgroundColor3 = Color3.fromRGB(100,100,100)
+							buttonFrame.BorderSizePixel = 0
+							buttonFrame.Parent = baseframe
+
+							local switch = Instance.new("TextButton")
+							switch.Text = ""
+							switch.Position = UDim2.new(0,0,0,0)
+							switch.AnchorPoint = Vector2.new(0,0)
+							switch.Size = UDim2.new(0.5,0,1,0)
+							switch.BackgroundColor3 = Color3.fromRGB(200,200,200)
+							switch.BorderSizePixel = 0
+							switch.Parent = buttonFrame
+
+							local framecorner = Instance.new("UICorner")
+							framecorner.CornerRadius = UDim.new(0,25)
+							framecorner.Parent = buttonFrame
+
+							local switchcorner = Instance.new("UICorner")
+							switchcorner.CornerRadius = UDim.new(0,25)
+							switchcorner.Parent = switch
+
+							local function buttontoggle()
+								local hasgot = getIfHas()
+								if hasgot == true then
+									local goal = {}
+									goal.BackgroundColor3 = v[4]["oncolor"]
+									local tweenInfo = TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+									local tween = tweenServ:Create(buttonFrame, tweenInfo, goal)
+									tween:Play()
+
+									local goal = {}
+									goal.Position = UDim2.new(1,0,0,0)
+									goal.AnchorPoint = Vector2.new(1,0)
+									local tweenInfo = TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+									local tween = tweenServ:Create(switch, tweenInfo, goal)
+									tween:Play()
+								elseif hasgot == false then
+									local goal = {}
+									goal.BackgroundColor3 = v[4]["offcolor"]
+									local tweenInfo = TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+									local tween = tweenServ:Create(buttonFrame, tweenInfo, goal)
+									tween:Play()
+
+									local goal = {}
+									goal.Position = UDim2.new(0,0,0,0)
+									goal.AnchorPoint = Vector2.new(0,0)
+									local tweenInfo = TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+									local tween = tweenServ:Create(switch, tweenInfo, goal)
+									tween:Play()
+								end
+							end
+
+							switch.Activated:Connect(function()
+								local hasgot = getIfHas()
+								clickSound()
+								if hasgot == true then
+									buttonValues[v[4]["togglename"]] = false
+									buttontoggle()
+								elseif hasgot == false then
+									buttonValues[v[4]["togglename"]] = true
+									buttontoggle()
+								end
+							end)
+							buttontoggle()
+						elseif v[4]["style"] == "box" then
+							local baseframe = Instance.new("Frame")
+							baseframe.BorderSizePixel = 0
+							baseframe.BackgroundTransparency = 1
+							baseframe.Size = v[4]["size"]
+							baseframe.LayoutOrder = i
+							baseframe.Parent = basisscroll
+
+							local switch = Instance.new("TextButton")
+							switch.Text = ""
+							switch.Position = UDim2.new(0,0,0,0)
+							switch.AnchorPoint = Vector2.new(0,0)
+							switch.Size = UDim2.new(1,0,1,0)
+							switch.Text = v[4]["text"]
+							switch.TextColor3 = v[4]["color"]
+							switch.TextScaled = true
+							switch.Font = v[4]["font"]
+							switch.BackgroundTransparency = v[4]["backgroundtransparency"]
+							switch.BackgroundColor3 = v[4]["backgroundcolor"]
+							switch.BackgroundColor3 = Color3.fromRGB(200,200,200)
+							switch.BorderSizePixel = 0
+							switch.Parent = baseframe
+
+							local framecorner = Instance.new("UICorner")
+							framecorner.CornerRadius = UDim.new(0,25)
+							framecorner.Parent = switch
+
+							local function buttontoggle()
+								local got = getIfHas()
+
+								if got == true then
+									local goal = {}
+									goal.BackgroundColor3 = v[4]["oncolor"]
+									local tweenInfo = TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+									local tween = tweenServ:Create(switch, tweenInfo, goal)
+									tween:Play()
+									switch.Text = v[4]["text"].." ON"
+								else
+									local goal = {}
+									goal.BackgroundColor3 = v[4]["offcolor"]
+									local tweenInfo = TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+									local tween = tweenServ:Create(switch, tweenInfo, goal)
+									tween:Play()
+									switch.Text = v[4]["text"].." OFF"
+								end
+							end
+
+							switch.Activated:Connect(function()
+								local hasgot = getIfHas()
+								clickSound()
+								if hasgot == true then
+									buttonValues[v[4]["togglename"]] = false
+									buttontoggle()
+								elseif hasgot == false then
+									buttonValues[v[4]["togglename"]] = true
+									buttontoggle()
+								end
+							end)
+							buttontoggle()
+						end
+					elseif guiType == "togglebutton2" then
+						local function getIfHas()
+							if table.find(v[4]["tableaddto"], v[4]["togglename"]) then
+								return true
+							else
+								return false
+							end
+						end
+
+						if v[4]["style"] == "switch" then
+							local baseframe = Instance.new("Frame")
+							baseframe.BorderSizePixel = 0
+							baseframe.BackgroundTransparency = v[4]["backgroundtransparency"]
+							baseframe.Size = v[4]["size"]
+							baseframe.BackgroundColor3 = v[4]["backgroundcolor"]
+							baseframe.LayoutOrder = i
+							baseframe.Parent = basisscroll
+
+							local label = Instance.new("TextLabel")
+							label.BackgroundTransparency = 1
+							label.Size = UDim2.new(0.75,0,1,0)
+							label.Text = v[4]["text"]
+							label.TextColor3 = v[4]["color"]
+							label.Font = v[4]["font"]
+							label.TextScaled = true
+							label.TextXAlignment = Enum.TextXAlignment.Left
+							label.Parent = baseframe
+
+							local buttonFrame = Instance.new("Frame")
+							buttonFrame.Size = UDim2.new(0.25,0,0.8,0)
+							buttonFrame.AnchorPoint = Vector2.new(1,0.5)
+							buttonFrame.Position = UDim2.new(1,0,0.5,0)
+							buttonFrame.BackgroundColor3 = Color3.fromRGB(100,100,100)
+							buttonFrame.BorderSizePixel = 0
+							buttonFrame.Parent = baseframe
+
+							local switch = Instance.new("TextButton")
+							switch.Text = ""
+							switch.Position = UDim2.new(0,0,0,0)
+							switch.AnchorPoint = Vector2.new(0,0)
+							switch.Size = UDim2.new(0.5,0,1,0)
+							switch.BackgroundColor3 = Color3.fromRGB(200,200,200)
+							switch.BorderSizePixel = 0
+							switch.Parent = buttonFrame
+
+							local framecorner = Instance.new("UICorner")
+							framecorner.CornerRadius = UDim.new(0,25)
+							framecorner.Parent = buttonFrame
+
+							local switchcorner = Instance.new("UICorner")
+							switchcorner.CornerRadius = UDim.new(0,25)
+							switchcorner.Parent = switch
+
+							local function buttontoggle()
+								local got = getIfHas()
+								if got == true then
+									local goal = {}
+									goal.BackgroundColor3 = v[4]["oncolor"]
+									local tweenInfo = TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+									local tween = tweenServ:Create(buttonFrame, tweenInfo, goal)
+									tween:Play()
+
+									local goal = {}
+									goal.Position = UDim2.new(1,0,0,0)
+									goal.AnchorPoint = Vector2.new(1,0)
+									local tweenInfo = TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+									local tween = tweenServ:Create(switch, tweenInfo, goal)
+									tween:Play()
+								else
+									local goal = {}
+									goal.BackgroundColor3 = v[4]["offcolor"]
+									local tweenInfo = TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+									local tween = tweenServ:Create(buttonFrame, tweenInfo, goal)
+									tween:Play()
+
+									local goal = {}
+									goal.Position = UDim2.new(0,0,0,0)
+									goal.AnchorPoint = Vector2.new(0,0)
+									local tweenInfo = TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+									local tween = tweenServ:Create(switch, tweenInfo, goal)
+									tween:Play()
+								end
+							end
+
+							switch.Activated:Connect(function()
+								local got = getIfHas()
+								clickSound()
+								if got == true then
+									table.remove(v[4]["tableaddto"], table.find(v[4]["tableaddto"], v[4]["togglename"]))
+									buttontoggle()
+								else
+									table.insert(v[4]["tableaddto"], v[4]["togglename"])
+									buttontoggle()
+								end
+							end)
+							buttontoggle()
+						elseif v[4]["style"] == "box" then
+							local baseframe = Instance.new("Frame")
+							baseframe.BorderSizePixel = 0
+							baseframe.BackgroundTransparency = 1
+							baseframe.Size = v[4]["size"]
+							baseframe.LayoutOrder = i
+							baseframe.Parent = basisscroll
+
+							local switch = Instance.new("TextButton")
+							switch.Text = ""
+							switch.Position = UDim2.new(0,0,0,0)
+							switch.AnchorPoint = Vector2.new(0,0)
+							switch.Size = UDim2.new(1,0,1,0)
+							switch.Text = v[4]["text"]
+							switch.TextColor3 = v[4]["color"]
+							switch.Font = v[4]["font"]
+							switch.TextScaled = true
+							switch.BackgroundTransparency = v[4]["backgroundtransparency"]
+							switch.BackgroundColor3 = v[4]["backgroundcolor"]
+							switch.BackgroundColor3 = Color3.fromRGB(200,200,200)
+							switch.BorderSizePixel = 0
+							switch.Parent = baseframe
+
+							local framecorner = Instance.new("UICorner")
+							framecorner.CornerRadius = UDim.new(0,5)
+							framecorner.Parent = switch
+
+							local function buttontoggle()
+								local got = getIfHas()
+
+								if got == true then
+									local goal = {}
+									goal.BackgroundColor3 = v[4]["oncolor"]
+									local tweenInfo = TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+									local tween = tweenServ:Create(switch, tweenInfo, goal)
+									tween:Play()
+									switch.Text = v[4]["text"].." ON"
+								else
+									local goal = {}
+									goal.BackgroundColor3 = v[4]["offcolor"]
+									local tweenInfo = TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+									local tween = tweenServ:Create(switch, tweenInfo, goal)
+									tween:Play()
+									switch.Text = v[4]["text"].." OFF"
+								end
+							end
+
+							switch.Activated:Connect(function()
+								local got = getIfHas()
+								clickSound()
+								if got == true then
+									table.remove(v[4]["tableaddto"], table.find(v[4]["tableaddto"], v[4]["togglename"]))
+									buttontoggle()
+								else
+									table.insert(v[4]["tableaddto"], v[4]["togglename"])
+									buttontoggle()
+								end
+							end)
+							buttontoggle()
+						end
+					elseif guiType == "numberbox" then
+						local baseframe = Instance.new("Frame")
+						baseframe.BorderSizePixel = 0
+						baseframe.BackgroundTransparency = v[4]["backgroundtransparency"]
+						baseframe.Size = v[4]["size"]
+						baseframe.BackgroundColor3 = v[4]["backgroundcolor"]
+						baseframe.LayoutOrder = i
+						baseframe.Parent = basisscroll
+
+						local label = Instance.new("TextLabel")
+						label.BackgroundTransparency = 1
+						label.Size = UDim2.new(0.45,0,1,0)
+						label.Text = v[4]["text"]
+						label.TextColor3 = v[4]["color"]
+						label.Font = v[4]["font"]
+						label.TextScaled = true
+						label.TextXAlignment = Enum.TextXAlignment.Left
+						label.Parent = baseframe
+
+						local downbutton = Instance.new("TextButton")
+						downbutton.Text = "-"
+						downbutton.TextScaled = true
+						downbutton.TextColor3 = Color3.new(255,255,255)
+						downbutton.Position = UDim2.new(1,0,0.5,0)
+						downbutton.AnchorPoint = Vector2.new(1,0.5)
+						downbutton.Size = UDim2.new(0.1,0,0.9,0)
+						downbutton.BackgroundColor3 = v[4]["downcolor"]
+						downbutton.BorderSizePixel = 0
+						downbutton.Parent = baseframe
+
+						local switchcorner = Instance.new("UICorner")
+						switchcorner.CornerRadius = UDim.new(0,6)
+						switchcorner.Parent = downbutton
+
+						local upbutton = Instance.new("TextButton")
+						upbutton.Text = "+"
+						upbutton.TextScaled = true
+						upbutton.TextColor3 = Color3.new(255,255,255)
+						upbutton.Position = UDim2.new(0.9,0,0.5,0)
+						upbutton.AnchorPoint = Vector2.new(1,0.5)
+						upbutton.Size = UDim2.new(0.1,0,0.9,0)
+						upbutton.BackgroundColor3 = v[4]["upcolor"]
+						upbutton.BorderSizePixel = 0
+						upbutton.Parent = baseframe
+
+						local switchcorner = Instance.new("UICorner")
+						switchcorner.CornerRadius = UDim.new(0,6)
+						switchcorner.Parent = upbutton
+
+						local textlabel = Instance.new("TextLabel")
+						textlabel.Text = "0"
+						textlabel.TextScaled = true
+						textlabel.TextColor3 = Color3.new(255,255,255)
+						textlabel.Position = UDim2.new(0.75,0,0.5,0)
+						textlabel.AnchorPoint = Vector2.new(1,0.5)
+						textlabel.Size = UDim2.new(0.3,0,0.9,0)
+						textlabel.BackgroundColor3 = v[4]["displayBackgroundColor"]
+						textlabel.BackgroundTransparency = 0.25
+
+						textlabel.TextColor3 = v[4]["displayTextColor"]
+						textlabel.Font = Enum.Font.Code
+
+						textlabel.BorderSizePixel = 0
+						textlabel.Parent = baseframe
+
+						local function updateDisplay()
+							local displayAsText = tostring(math.floor(buttonValues[v[4]["varname"]]*1000)/1000)
+							if v[4]["displayas"] ~= nil then
+								if v[4]["displayas"][buttonValues[v[4]["varname"]]] then
+									displayAsText = tostring( v[4]["displayas"][buttonValues[v[4]["varname"]]] )
+								end
+							end
+							textlabel.Text = displayAsText
+						end
+
+						updateDisplay()
+
+						upbutton.Activated:Connect(function()
+							buttonValues[v[4]["varname"]] = math.clamp(buttonValues[v[4]["varname"]] + v[4]["inc"], v[4]["minnum"], v[4]["maxnum"])
+							updateDisplay()
+							clickSound()
+						end)
+						downbutton.Activated:Connect(function()
+							buttonValues[v[4]["varname"]] = math.clamp(buttonValues[v[4]["varname"]] - v[4]["inc"], v[4]["minnum"], v[4]["maxnum"])
+							updateDisplay()
+							clickSound()
+						end)
+					elseif guiType == "whitespace" then
+						local baseframe = Instance.new("Frame")
+						baseframe.BorderSizePixel = 0
+						baseframe.BackgroundTransparency = 1
+						baseframe.Size = UDim2.new(1,0,v[4]["size"],0)
+						baseframe.LayoutOrder = i
+						baseframe.Parent = basisscroll
+					elseif guiType == "functionbutton" then
+						local switch = Instance.new("TextButton")
+						switch.Text = ""
+						switch.Position = UDim2.new(0,0,0,0)
+						switch.AnchorPoint = Vector2.new(0,0)
+						switch.Size = v[4]["size"]
+						switch.Text = v[4]["text"]
+						switch.TextColor3 = v[4]["color"]
+						switch.TextScaled = true
+						switch.Font = v[4]["font"]
+						switch.BackgroundTransparency = v[4]["transparency"]
+						switch.BackgroundColor3 = v[4]["backgroundcolor"]
+						switch.BorderColor3 = v[4]["strokecolor"]
+						switch.BorderSizePixel = 4
+						switch.BorderMode = Enum.BorderMode.Inset
+						switch.LayoutOrder = i
+						switch.Parent = basisscroll
+
+						switch.Activated:Connect(v[4]["pressfunction"])
+					end
+				end
+			end
+		end
+	end)
+	if not success then
+		warn(errormes)
+	end
+end
+
+guiAPI.newColorScheme = function(name, basecolor, topcolor, bordercolor)
+	colorSchemes[name] = {basecolor, topcolor, bordercolor}
+end
+
+guiAPI.CreateNewWindow = function(sizeX, sizeY, name, colorscheme, moveable, closeable, haslist, toptextname, startValue, gridType, gridInfo)
+	if not gridType then
+		gridType = "list"
+	end
+
+	local basecolor = Color3.fromRGB(50,50,50)
+	local topcolor = Color3.fromRGB(25,25,25)
+	local bordercolor = Color3.fromRGB(50,50,150)
+
+	if colorSchemes[colorscheme] then
+		basecolor = colorSchemes[colorscheme][1]
+		topcolor = colorSchemes[colorscheme][2]
+		bordercolor = colorSchemes[colorscheme][3]
+	end
+
+	local topFrame = Instance.new("Frame")
+	topFrame.BorderSizePixel = 0
+	topFrame.BackgroundTransparency = 0.1
+	topFrame.Size = UDim2.new(sizeX,0,0.035,0)
+	topFrame.Name = name
+	topFrame.BackgroundColor3 = topcolor
+	topFrame.AnchorPoint = Vector2.new(0,0)
+	topFrame.Position = UDim2.new(0.5,0,0.5,0)
+	topFrame.Parent = newScreenGUI
+
+	local topText = Instance.new("TextLabel")
+	topText.Size = UDim2.new(1,0,1,0)
+	topText.BackgroundTransparency = 1
+	topText.BorderSizePixel = 0
+	topText.TextColor3 = Color3.fromRGB(255,255,255)
+	topText.Font = Enum.Font.Code
+	topText.TextXAlignment = Enum.TextXAlignment.Left
+	topText.TextScaled = true
+	topText.Text = toptextname
+	topText.Parent = topFrame
+
+	local basis = Instance.new("Frame")
+	basis.BackgroundTransparency = 0.1
+	basis.Size = UDim2.new(1,0,sizeY,0)
+	basis.Name = "Content"
+	basis.BorderSizePixel = 0
+	basis.BackgroundColor3 = basecolor
+	basis.AnchorPoint = Vector2.new(0,0)
+	basis.Position = UDim2.new(0,0,1,0)
+	basis.Parent = topFrame
+
+	local basisscrolling = Instance.new("ScrollingFrame")
+	basisscrolling.Size = UDim2.new(1,0,1,0)
+	basisscrolling.Position = UDim2.new(0,0,0,0)
+	basisscrolling.BackgroundTransparency = 1
+	basisscrolling.ScrollBarThickness = 0
+	basisscrolling.AutomaticCanvasSize = Enum.AutomaticSize.Y
+	basisscrolling.CanvasSize = UDim2.new(0,0,0,0)
+	basisscrolling.Parent = basis
+
+	if gridType == "list" then
+		local listlayout2 = Instance.new("UIListLayout")
+		listlayout2.Parent = basisscrolling
+		listlayout2.SortOrder = Enum.SortOrder.LayoutOrder
+		listlayout2.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	elseif gridType == "grid" then
+		local listlayout2 = Instance.new("UIGridLayout")
+		listlayout2.Parent = basisscrolling
+		listlayout2.SortOrder = Enum.SortOrder.LayoutOrder
+		listlayout2.CellSize = gridInfo["size"]
+		listlayout2.CellPadding = gridInfo["padding"]
+	end
+
+	local tabSelected = Instance.new("StringValue")
+	if not startValue then
+		startValue = ""
+	end
+	tabSelected.Value = startValue
+	tabSelected.Parent = topFrame
+
+	if haslist == true then
+		local listframe = Instance.new("Frame")
+		listframe.BackgroundTransparency = 0.1
+		listframe.Size = UDim2.new(0.25,0,sizeY+1,0)
+		listframe.Name = "List"
+		listframe.BorderSizePixel = 0
+		listframe.BackgroundColor3 = topcolor
+		listframe.AnchorPoint = Vector2.new(1,0)
+		listframe.Position = UDim2.new(0,0,0,0)
+		listframe.Parent = topFrame
+
+		local scrolling = Instance.new("ScrollingFrame")
+		scrolling.Size = UDim2.new(1,0,1,0)
+		scrolling.Position = UDim2.new(0,0,0,0)
+		scrolling.BackgroundTransparency = 1
+		scrolling.ScrollBarThickness = 0
+		scrolling.AutomaticCanvasSize = Enum.AutomaticSize.Y
+		scrolling.CanvasSize = UDim2.new(0,0,0,0)
+		scrolling.Parent = listframe
+
+		local listlayout = Instance.new("UIListLayout")
+		listlayout.Padding = UDim.new(0.015,0)
+		listlayout.Parent = scrolling
+		listlayout.SortOrder = Enum.SortOrder.LayoutOrder
+		listlayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	end
+
+	local border = Instance.new("Frame")
+	border.BackgroundTransparency = 1
+	border.AnchorPoint = Vector2.new(1,0)
+	border.Position = UDim2.new(1,0,0,0)
+	if haslist == true then
+		border.Size = UDim2.new(1.25,0,sizeY+1,0)
+	else
+		border.Size = UDim2.new(1,0,sizeY+1,0)
+	end
+	border.Parent = topFrame
+
+	local stroke = Instance.new("UIStroke")
+	stroke.Color = bordercolor
+	stroke.Thickness = 1.5
+	stroke.Transparency = 0.2
+	stroke.Parent = border
+
+	if moveable == true then
+		table.insert(moveableWindows, topFrame)
+	end
+
+	if closeable == true then
+		local button = Instance.new("TextButton")
+		button.Text = "X"
+		button.Size = UDim2.new(0.1,0,1,0)
+		button.AnchorPoint = Vector2.new(1,0)
+		button.Position = UDim2.new(1,0,0,0)
+		button.BackgroundTransparency = 1
+		button.TextScaled = true
+		button.Font = Enum.Font.Code
+		button.TextColor3 = bordercolor
+		button.Parent = topFrame
+
+		button.Activated:Connect(function()
+			clickSound()
+
+			local shift = 0
+			for key, val in ipairs(thingsInTabs) do
+				if val and val[2] == topFrame then
+					continue
+				else
+					table.remove(thingsInTabs, key-shift)
+					shift += 1
+				end
+			end
+
+			topFrame:Destroy()
+
+		end)
+	end
+
+	return topFrame
+end
+
+guiAPI.newTab = function(tabname, parent, colorscheme, otherdata)
+	local listframe = nil
+	local scrolling = nil
+	local valuething = nil
+
+	listframe = parent:FindFirstChild("List")
+	if listframe then
+		scrolling = listframe:FindFirstChildOfClass("ScrollingFrame")
+	end
+	valuething = parent:FindFirstChildOfClass("StringValue")
+
+	if listframe and scrolling then
+		local basecolor = Color3.fromRGB(50,50,50)
+		local topcolor = Color3.fromRGB(25,25,25)
+		local bordercolor = Color3.fromRGB(50,50,150)
+
+		if colorSchemes[colorscheme] then
+			basecolor = colorSchemes[colorscheme][1]
+			topcolor = colorSchemes[colorscheme][2]
+			bordercolor = colorSchemes[colorscheme][3]
+		end
+
+		local button = Instance.new("TextButton")
+		button.BackgroundTransparency = 0.2
+		button.Size = UDim2.new(0.95,0,0.1,0)
+		button.Name = tabname
+		button.BorderSizePixel = 0
+		button.BackgroundColor3 = basecolor
+		button.AnchorPoint = Vector2.new(0.5, 0)
+		button.Position = UDim2.new(0.5,0,0,0)
+		button.LayoutOrder = #scrolling:GetChildren()
+
+		button.Text = ""
+
+		local buttonColor = otherdata[1]
+		local buttonFont = otherdata[2]
+		local buttonText = otherdata[3]
+
+		if buttonColor and buttonFont then
+			button.Text = buttonText
+			button.Font = buttonFont
+			button.TextColor3 = buttonColor
+			button.TextScaled = true
+		end
+
+		button.Parent = scrolling
+
+		button.Activated:Connect(function()
+			valuething.Value = tabname
+			updateInfo(parent)
+			clickSound()
+		end)
+
+		local buttonstroke = Instance.new("UIStroke")
+		buttonstroke.Color = bordercolor
+		buttonstroke.Thickness = 1
+		buttonstroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+		buttonstroke.Parent = button
+
+		local uicorner = Instance.new("UICorner")
+		uicorner.CornerRadius = UDim.new(0,1)
+		uicorner.Parent = button
+
+		button.Parent = scrolling
+		return button
+	end
+end
+
+local amtofobjects = 0
+guiAPI.newTabObject = function(tab, parent, typeObject, typeData)
+	amtofobjects = amtofobjects + 1
+	if typeObject == "togglebutton1" then
+		buttonValues[typeData["togglename"]] = false
+	end
+	if typeObject == "numberbox" then
+		buttonValues[typeData["varname"]] = typeData["startnum"]
+	end
+
+	local key = ""
+	local flag = false
+	repeat
+		local stringThing = ""
+
+		local length = math.random(5,40)
+
+		for i = 1,length do
+			stringThing = stringThing..string.char(math.random(70, 122))
+		end
+
+		if not thingsInTabs[stringThing] then
+			key = stringThing
+			flag = true
+		end
+		task.wait(0)
+	until flag == true
+	thingsInTabs[key] = {tab, parent, typeObject, typeData, amtofobjects}
+	return key
+end
+
+guiAPI.refreshWindow = function(window)
+	updateInfo(window)
+end
+
+local holdingGUI = nil
+local holdingGUIOffset = nil
+inputServ.InputBegan:Connect(function(input, gameproc)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		if holdingGUI == nil then
+			local pos = Vector2.new(mouse.X, mouse.Y)
+			local gotGUIs = newScreenGUI.Parent:GetGuiObjectsAtPosition(pos.X,pos.Y)
+
+			for i,guiObject in pairs(gotGUIs) do
+				if holdingGUI == nil then
+					if table.find(moveableWindows, guiObject) then
+						holdingGUI = guiObject
+						holdingGUIOffset = guiObject.AbsolutePosition - pos
+					end
+				end
+			end
+		end
+	end
+end)
+
+inputServ.InputEnded:Connect(function(input, gameproc)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		if holdingGUI then
+			holdingGUI = nil
+			holdingGUIOffset = nil
+		end
+	end
+end)
+
+runServ.RenderStepped:Connect(function()
+	if holdingGUI and holdingGUIOffset then
+		local mousepos = Vector2.new(mouse.X, mouse.Y)
+
+		holdingGUI.Position = UDim2.fromOffset(mousepos.X + holdingGUIOffset.X, mousepos.Y + holdingGUIOffset.Y)
+	end
+end)
+
+-- end of api
+
+for i,v in pairs(getconnections(game.Players.LocalPlayer.Idled)) do
+	v:Disable()
+end
+
+local repStorage = game:GetService("ReplicatedStorage")
+local specials = repStorage.Specials
+local logic = repStorage.Logic
+local miscEvent = logic.misc
+local gammaBreaker = specials.gammabreaker
+local fireball = specials.fireball
+local throwbomb = specials.throwtbomb
+local airtbomb = specials.airtbomb
+local tbombjump = specials.tbombjump
+local fingernail = specials.firefingernail
+
+local inffingernail = specials.infinitenail
+--cf start, cf end, voiceline
+
+local spear = specials.spearthrow
+local heavyweather = specials.heavyweather
+local snail = specials.weathercontrol
+local shockwr = specials.weathershock
+local secondam = specials.secondamendment
+local emSplash = specials.emeraldsplash
+local greenarm = specials.greendayarm
+local hyperq = specials.hyperquake
+local usestolen = specials.usestolenability
+local removestolen = specials.removestolenability
+local miniheart = specials.mheartattack
+local homingbubble = specials.hboombubble
+local softst = specials.softstrike
+local hitbox = logic.hitbox
+local revolver = specials.revolvershot3
+local woueffect = specials.woueffect
+local calam = specials.calamity
+local funnystick = specials.wouobjectthrow
+local req = specials.requiemarrowthrow
+local illusion = specials.illusioncreation
+local cyborgArm = specials.limblaunch
+-- cf then voiceline
+local stringslicer = specials.stringslicer
+local harvestSteal = specials.harveststeal
+local rohanTalk = logic.rohantalk
+local buyitem = logic.giveitem
+local nuke = specials.nukeevent
+-- cf, dmg, sound, sound
+local creamball = specials.ballframe
+local voiddim = specials.voiddimension
+local d4cflag = specials.dimensionflag
+local yournextline = specials.yournextline
+local harvestInject = specials.harvestinject
+local geHeal = specials.geheal
+
+local luckyArrowUse = logic.luckyarrowevent
+local arrowUse = logic.arrowevent
+local setVoiceline = logic.setvoiceline
+
+local printEventsToggle = "printEventsToggle"
+local noCooldownToggle = "noCooldownToggle"
+local twauSubToggle = "twauSubToggle"
+local creamVoidToggle = "creamVoidToggle"
+local dimensionToggle = "d4cDimToggle"
+local touchOfLifeToggle = "touchOfLifeToggle"
+local touchOfLifeExtendedToggle = "touchOfLifeExtendedToggle"
+local immortalityToggle = "immortality"
+local dmgMultAmt = "dmgMultAmtLol"
+
+local sendJoints = repStorage.Logic.sendjoints
+local blacklistFromSpy = {repStorage.receivetime, sendJoints, repStorage.rockframe}
+local queue = {}
+
+_G.eventQueue = {}
+_G.TToLQueue = {}
+_G.kissSubQueue = {}
+
+local barragesTypes = {
+	106, --ct
+	1, --normal
+	30, -- ger
+	22, -- tusk
+	47, -- spoh
+	72, -- spp
+	51, -- wr
+	47, -- cr 
+}
+local strongTypes = {
+	113, --ct
+	28, -- ge
+	29, --ger
+	23, -- tusk
+	19, -- kc chop
+	2, -- normal
+	48, -- spoh
+	125, -- dd killing blow
+	25, -- dd e
+	71, -- spp
+	123, -- wr
+	40, -- cr 
+}
+local function deepCopy(original)
+	local copy = {}
+	for k, v in pairs(original) do
+		if type(v) == "table" then
+			v = deepCopy(v)
+		end
+		copy[k] = v
+	end
+	return copy
+end
+local kissSubToggle = "kissSubToggle"
+local kissSubMultAmt = "kissSubMultAmt"
+
+local kissSubPositionToggle = "kissSubPositionToggle"
+local kissSubPositionInvertToggle = "KSPCIInverttttt"
+local kissSubPositionChangeAmt = "kissSubPositionChangeAmt"
+local kissPosXToggle = "kissPosXToggle"
+local kissPosYToggle = "kissPosYToggle"
+local kissPosZToggle = "kissPosZToggle"
+
+local projectiles = {
+	specials.starblast,
+	specials.revolvershot,
+	specials.scorpionthrow,
+	specials.rumbleboulder,
+	specials.firefingernail,
+	specials.firewarpnail,
+	specials.fingernailshotgun,
+	specials.superfingernailshotgun,
+	specials.infinitenail,
+	specials.fireshotgun,
+	specials.polpogun,
+	specials.revolvershot3,
+	specials.bulbcannon,
+	specials.aerogun,
+	specials.aerobomb,
+	specials.requiemarrowthrow,
+	specials.arrowthrow,
+	specials.flamingskull,
+	specials.fireball,
+	specials.crossfirehurricane,
+	specials.smallfire,
+	specials.revolvershot2,
+	specials.firebullet,
+	specials.emperorquickshot,
+	specials.emeraldsplash,
+	specials.sprayflesh,
+	specials.emperorchargeshot,
+	specials.grenadetoss,
+	specials.mandomquickdraw,
+	specials.firebearshot,
+	specials.spearthrow,
+	specials.bubbleevent,
+	specials.photoncannon,
+	specials.gastoss,
+	specials.tripleknife,
+	specials.nwarhead,
+	specials.bulletrain,
+	specials.secondamendment,
+	specials.wouobjectthrow,
+	specials.kitchenknife,
+	specials.acidball,
+	specials.spawnknife,
+	specials.mihknife,
+	specials.ministars,
+	specials["20threvolver"],
+	specials["20thrifle"],
+	specials.ajablast,
+	specials.clacker,
+	specials.firetommyshot,
+	specials.greendayarm,
+}
+local supersuhhh = {
+	specials.gratefulsmash,
+}
+
+local function newRandomNum(vari, fact)
+	return math.random(-vari * fact, vari * fact) / fact
+end
+
+local dmgTypeSelect = "dmgTypeSelect"
+local dmgTypeSelectStrong = "dmgTypeSelectStrong"
+
+local OldNameCall = nil
+OldNameCall = hookmetamethod(game, "__namecall", function(Self, ...)
+	local Args = {...}
+	local NamecallMethod = getnamecallmethod()
+
+	if not checkcaller() and (NamecallMethod == "FireServer" or NamecallMethod == "InvokeServer") then
+		if table.find(blacklistFromSpy, Self) == nil then
+			if buttonValues[printEventsToggle] == true then
+				_G.eventQueue[Self.Name] = {Self, getcallingscript(), Args}
+			end
+		end
+		if Self == hitbox and buttonValues[touchOfLifeToggle] == true then
+			Args[4] = 0
+			table.insert(_G.TToLQueue, Args[6])
+		end
+		if table.find(projectiles, Self) and buttonValues[kissSubToggle] then
+			for i = 1, buttonValues[kissSubMultAmt] do
+
+				for i,v in pairs(Args) do
+					if typeof(v) == "number" then
+						if i ~= #Args then
+							
+							Args[i] = Args[i] * buttonValues[dmgMultAmt]
+
+						end
+					end
+				end
+				local argscopy = deepCopy(Args)
+
+				local variation = 25
+				local factor = 10
+				local x = newRandomNum(variation, factor)
+				local y = newRandomNum(variation, factor)
+
+				local posvariation = buttonValues[kissSubPositionChangeAmt]
+				local posX = 0
+				if buttonValues[kissPosXToggle] == true then
+					posX = math.random(-posvariation * 10, posvariation * 10) / 100
+				end
+				local posY = 0
+				if buttonValues[kissPosYToggle] == true then
+					posY = math.random(-posvariation * 10, posvariation * 10) / 100
+				end
+				local posZ = 0
+				if buttonValues[kissPosZToggle] == true then
+					posZ = math.random(-posvariation * 10, posvariation * 10) / 100
+				end
+
+				local cfFoundInRow = 0
+				for i,v in pairs(argscopy) do
+					if typeof(v) == "CFrame" then
+						cfFoundInRow = cfFoundInRow + 1
+						if cfFoundInRow == 1 then
+
+							local cfMod = nil
+							local cfPosMod = nil
+							if buttonValues[kissSubPositionToggle] == true then
+								cfPosMod = CFrame.new(posX, posY, posZ)
+								cfMod = CFrame.Angles(math.rad(x), math.rad(y), 0)
+							else
+								cfPosMod = CFrame.new(0,0,0)
+								cfMod = CFrame.Angles(math.rad(x), math.rad(y), 0)
+							end
+
+							if typeof(argscopy[i + 1]) == "CFrame" and buttonValues[kissSubPositionInvertToggle] ~= true then
+								argscopy[i + 1] = argscopy[i + 1] * (cfPosMod)
+								argscopy[i] = argscopy[i] * (cfMod)
+							elseif typeof(argscopy[i + 1]) == "Vector3" and buttonValues[kissSubPositionInvertToggle] ~= true then
+								argscopy[i + 1] = argscopy[i + 1] + (cfPosMod.Position)
+								argscopy[i] = argscopy[i] * (cfMod)
+							else
+								argscopy[i] = argscopy[i] * (cfPosMod * cfMod)
+							end
+						end
+					end
+				end
+
+				table.insert(_G.kissSubQueue, {Self, argscopy})
+			end
+		end
+		if Self == hitbox then
+			Args[4] = Args[4] * buttonValues[dmgMultAmt]
+
+			if table.find(barragesTypes, Args[1]) ~= nil and buttonValues[dmgTypeSelect] ~= 1 then
+				if buttonValues[dmgTypeSelect] == 2 then
+					-- prime
+					Args[1] = 72
+				elseif buttonValues[dmgTypeSelect] == 3 then
+					-- oh
+					Args[1] = 47
+				elseif buttonValues[dmgTypeSelect] == 4 then
+					-- ct
+					Args[1] = 106
+				elseif buttonValues[dmgTypeSelect] == 5 then
+					--tusk
+					Args[1] = 22
+				elseif buttonValues[dmgTypeSelect] == 6 then
+					-- ger
+					Args[1] = 30
+				else
+	
+				end
+			end
+			if table.find(strongTypes, Args[1]) ~= nil and table.find(barragesTypes, Args[1]) == nil and buttonValues[dmgTypeSelectStrong] ~= 1 then
+				if buttonValues[dmgTypeSelectStrong] == 2 then
+					-- prime
+					Args[1] = 71
+				elseif buttonValues[dmgTypeSelectStrong] == 3 then
+					-- oh
+					Args[1] = 48
+				elseif buttonValues[dmgTypeSelectStrong] == 4 then
+					--tusk
+					Args[1] = 23
+				elseif buttonValues[dmgTypeSelectStrong] == 5 then
+					-- ger
+					Args[1] = 29
+				elseif buttonValues[dmgTypeSelectStrong] == 6 then
+					-- ge
+					Args[1] = 28
+				elseif buttonValues[dmgTypeSelectStrong] == 7 then
+					-- dd
+					Args[1] = 125
+				elseif buttonValues[dmgTypeSelectStrong] == 8 then
+					-- kc
+					Args[1] = 19
+				elseif buttonValues[dmgTypeSelectStrong] == 9 then
+					-- cr
+					Args[1] = 40
+				else
+	
+				end
+			end
+		end
+
+
+	end
+
+	return OldNameCall(Self, unpack(Args))
+end)
+
+_G.failsafe = true
+local cor = coroutine.wrap(function()
+	repeat 
+		for i,v in pairs(_G.eventQueue) do
+			printInfoToConsole(v[1]:GetFullName())
+			if v[2] ~= nil then
+				printInfoToConsole(v[2]:GetFullName())
+			end
+			printTable(v[3], 1)
+			printInfoToConsole("//")
+			_G.eventQueue[i] = nil
+		end
+
+		for i,v in pairs(_G.TToLQueue) do
+			pcall(function ()
+				local charHitting = v.Parent
+				local root = charHitting:FindFirstChild("Torso")
+				if root then
+					local got = hitbox:InvokeServer(0, root, root.CFrame, -math.huge, nil, v, false, false, false)
+					if buttonValues[touchOfLifeExtendedToggle] == true then
+						local got = hitbox:InvokeServer(0, root, root.CFrame, math.huge, nil, v, false, false, false)
+					end
+				end
+			end)
+
+			runServ.RenderStepped:Wait()
+		end
+		_G.TToLQueue = {}
+
+		for i,v in pairs(_G.kissSubQueue) do
+			local event = v[1]
+			local args = v[2]
+
+			print("--"..event.Name)
+			printTable(args, 1)
+			if event:IsA("RemoteEvent") then
+				event:FireServer(unpack(args))
+			end
+
+			runServ.RenderStepped:Wait()
+		end
+		_G.kissSubQueue = {}
+
+		runServ.RenderStepped:Wait()
+	until closed == true
+	_G.kissSubQueue = {}
+	_G.eventQueue = {}
+	_G.TToLQueue = {}
+end)
+cor()
+
+guiAPI.newColorScheme("basis",
+	Color3.fromRGB(50,50,50),
+	Color3.fromRGB(25,25,25),
+	Color3.fromRGB(173,33,40)
+)
+
+guiAPI.newColorScheme("button", 
+	Color3.fromRGB(25,25,25),
+	Color3.fromRGB(25,25,25),
+	Color3.fromRGB(255,255,255)
+)
+
+local savedConnections = {}
+local closed = false
+
+local startTab = "utilities"
+local autofarmTab = "autofarm"
+local fusionMoves = "subabilities"
+local fusionsSubs = "subeffects"
+local goofyTab = "goofy"
+
+local baseGUI = guiAPI.CreateNewWindow(0.22, 10, "Main", "basis", true, true, true, "ballpeetus gui", startTab)
+local destroyConnect = baseGUI.Destroying:Connect(function()
+	closed = true
+	for i,v in pairs(savedConnections) do
+		v:Disconnect()
+	end
+end)
+table.insert(savedConnections, destroyConnect)
+
+local startTabGUI = guiAPI.newTab(startTab, baseGUI, "button", {Color3.fromRGB(255,255,255), Enum.Font.Code, "Utilities"})
+local autofarmTabGUI = guiAPI.newTab(autofarmTab, baseGUI, "button", {Color3.fromRGB(255,255,255), Enum.Font.Code, "Autofarm"})
+local goofyTabGUI = guiAPI.newTab(goofyTab, baseGUI, "button", {Color3.fromRGB(255,255,255), Enum.Font.Code, "Goofy"})
+local fusionMovesGUI = guiAPI.newTab(fusionMoves, baseGUI, "button", {Color3.fromRGB(255,255,255), Enum.Font.Code, "Fusion Moves"})
+local fusionsSubsGUI = guiAPI.newTab(fusionsSubs, baseGUI, "button", {Color3.fromRGB(255,255,255), Enum.Font.Code, "Fusion Subs"})
+
+guiAPI.newTabObject(startTab, baseGUI, "textlabel", {
+	["size"] = UDim2.new(1,0,0.15,0),
+	["text"] = [[this is a test
+		this is a test piece of text
+		this serves no purpose]],
+	["color"] = Color3.fromRGB(255,255,255),
+	["font"] = Enum.Font.Code,
+	["backgroundcolor"] = Color3.fromRGB(25,25,25),
+	["backgroundtransparency"] = 0.5,
+	["scalewithlines"] = true,
+})
+guiAPI.newTabObject(startTab, baseGUI, "togglebutton1", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = "Toggle Spy",
+	["togglename"] = printEventsToggle,
+	["color"] = Color3.fromRGB(255,255,255),
+	["font"] = Enum.Font.Code,
+	["backgroundcolor"] = Color3.fromRGB(25,25,25),
+	["backgroundtransparency"] = 0.5,
+	["style"] = "switch",
+	["offcolor"] = Color3.fromRGB(100,25,200),
+	["oncolor"] = Color3.fromRGB(100,150,255),
+})
+guiAPI.newTabObject(startTab, baseGUI, "togglebutton1", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = "Toggle No-Cooldown",
+	["togglename"] = noCooldownToggle,
+	["color"] = Color3.fromRGB(255,255,255),
+	["font"] = Enum.Font.Code,
+	["backgroundcolor"] = Color3.fromRGB(25,25,25),
+	["backgroundtransparency"] = 0.5,
+	["style"] = "switch",
+	["offcolor"] = Color3.fromRGB(100,25,200),
+	["oncolor"] = Color3.fromRGB(100,150,255),
+})
+guiAPI.newTabObject(startTab, baseGUI, "togglebutton1", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = "Toggle The Touch of Life",
+	["togglename"] = touchOfLifeToggle,
+	["color"] = Color3.fromRGB(255,255,255),
+	["font"] = Enum.Font.Code,
+	["backgroundcolor"] = Color3.fromRGB(25,25,25),
+	["backgroundtransparency"] = 0.5,
+	["style"] = "switch",
+	["offcolor"] = Color3.fromRGB(100,25,200),
+	["oncolor"] = Color3.fromRGB(100,150,255),
+})
+guiAPI.newTabObject(startTab, baseGUI, "togglebutton1", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = "Toggle TToL Extension",
+	["togglename"] = touchOfLifeExtendedToggle,
+	["color"] = Color3.fromRGB(255,255,255),
+	["font"] = Enum.Font.Code,
+	["backgroundcolor"] = Color3.fromRGB(25,25,25),
+	["backgroundtransparency"] = 0.5,
+	["style"] = "switch",
+	["offcolor"] = Color3.fromRGB(100,25,200),
+	["oncolor"] = Color3.fromRGB(100,150,255),
+})
+guiAPI.newTabObject(startTab, baseGUI, "whitespace", {
+	["size"] = 0.05,
+})
+guiAPI.newTabObject(startTab, baseGUI, "togglebutton1", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = "VOID",
+	["togglename"] = creamVoidToggle,
+	["color"] = Color3.fromRGB(255,255,255),
+	["font"] = Enum.Font.Code,
+	["backgroundcolor"] = Color3.fromRGB(25,25,25),
+	["backgroundtransparency"] = 0.5,
+	["style"] = "switch",
+	["offcolor"] = Color3.fromRGB(100,25,200),
+	["oncolor"] = Color3.fromRGB(100,150,255),
+})
+guiAPI.newTabObject(startTab, baseGUI, "togglebutton1", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = "D4C Dimension",
+	["togglename"] = dimensionToggle,
+	["color"] = Color3.fromRGB(255,255,255),
+	["font"] = Enum.Font.Code,
+	["backgroundcolor"] = Color3.fromRGB(25,25,25),
+	["backgroundtransparency"] = 0.5,
+	["style"] = "switch",
+	["offcolor"] = Color3.fromRGB(100,25,200),
+	["oncolor"] = Color3.fromRGB(100,150,255),
+})
+guiAPI.newTabObject(startTab, baseGUI, "whitespace", {
+	["size"] = 0.05,
+})
+guiAPI.newTabObject(startTab, baseGUI, "togglebutton1", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = "Immortality",
+	["togglename"] = immortalityToggle,
+	["color"] = Color3.fromRGB(255,255,255),
+	["font"] = Enum.Font.Code,
+	["backgroundcolor"] = Color3.fromRGB(25,25,25),
+	["backgroundtransparency"] = 0.5,
+	["style"] = "switch",
+	["offcolor"] = Color3.fromRGB(100,25,200),
+	["oncolor"] = Color3.fromRGB(100,150,255),
+})
+guiAPI.newTabObject(fusionsSubs, baseGUI, "numberbox", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = "Damage Multiplier",
+	["varname"] = dmgMultAmt,
+	["color"] = Color3.fromRGB(255,255,255),
+	["font"] = Enum.Font.Code,
+	["backgroundcolor"] = Color3.fromRGB(25,25,25),
+	["backgroundtransparency"] = 0.5,
+	["upcolor"] = Color3.fromRGB(100,25,200),
+	["downcolor"] = Color3.fromRGB(100,150,255),
+
+	["displayBackgroundColor"] = Color3.fromRGB(0,0,0),
+	["displayTextColor"] = Color3.fromRGB(255,255,255),
+
+	["inc"] = 0.25,
+	["maxnum"] = 100,
+	["minnum"] = 0,
+	["startnum"] = 1,
+})
+
+local dummySmiterToggle = "dummySmiterToggle"
+local spawnDinosToggle = "spawnDinosToggle"
+local standFarmToggle = "standFarmToggle"
+
+guiAPI.newTabObject(autofarmTab, baseGUI, "textlabel", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = [[money]],
+	["color"] = Color3.fromRGB(255,255,255),
+	["font"] = Enum.Font.Code,
+	["backgroundcolor"] = Color3.fromRGB(25,25,25),
+	["backgroundtransparency"] = 0.5,
+	["scalewithlines"] = false,
+})
+guiAPI.newTabObject(autofarmTab, baseGUI, "whitespace", {
+	["size"] = 0.05,
+})
+guiAPI.newTabObject(autofarmTab, baseGUI, "togglebutton1", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = "Toggle Dummy Farm",
+	["togglename"] = dummySmiterToggle,
+	["color"] = Color3.fromRGB(255,255,255),
+	["font"] = Enum.Font.Code,
+	["backgroundcolor"] = Color3.fromRGB(25,25,25),
+	["backgroundtransparency"] = 0.5,
+	["style"] = "switch",
+	["offcolor"] = Color3.fromRGB(100,25,200),
+	["oncolor"] = Color3.fromRGB(100,150,255),
+})
+guiAPI.newTabObject(autofarmTab, baseGUI, "togglebutton1", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = "Toggle Dinos",
+	["togglename"] = spawnDinosToggle,
+	["color"] = Color3.fromRGB(255,255,255),
+	["font"] = Enum.Font.Code,
+	["backgroundcolor"] = Color3.fromRGB(25,25,25),
+	["backgroundtransparency"] = 0.5,
+	["style"] = "switch",
+	["offcolor"] = Color3.fromRGB(100,25,200),
+	["oncolor"] = Color3.fromRGB(100,150,255),
+})
+
+local ssbSubToggle = "ssbSubToggle"
+
+guiAPI.newTabObject(fusionsSubs, baseGUI, "textlabel", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = [[actual subs]],
+	["color"] = Color3.fromRGB(255,255,255),
+	["font"] = Enum.Font.Code,
+	["backgroundcolor"] = Color3.fromRGB(25,25,25),
+	["backgroundtransparency"] = 0.5,
+	["scalewithlines"] = false,
+})
+guiAPI.newTabObject(fusionsSubs, baseGUI, "togglebutton1", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = "Toggle TWAU Sub",
+	["togglename"] = twauSubToggle,
+	["color"] = Color3.fromRGB(255,255,255),
+	["font"] = Enum.Font.Code,
+	["backgroundcolor"] = Color3.fromRGB(25,25,25),
+	["backgroundtransparency"] = 0.5,
+	["style"] = "switch",
+	["offcolor"] = Color3.fromRGB(100,25,200),
+	["oncolor"] = Color3.fromRGB(100,150,255),
+})
+guiAPI.newTabObject(fusionsSubs, baseGUI, "togglebutton1", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = "Toggle SSB Sub",
+	["togglename"] = ssbSubToggle,
+	["color"] = Color3.fromRGB(255,255,255),
+	["font"] = Enum.Font.Code,
+	["backgroundcolor"] = Color3.fromRGB(25,25,25),
+	["backgroundtransparency"] = 0.5,
+	["style"] = "switch",
+	["offcolor"] = Color3.fromRGB(100,25,200),
+	["oncolor"] = Color3.fromRGB(100,150,255),
+})
+guiAPI.newTabObject(fusionsSubs, baseGUI, "numberbox", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = "Melee Type (Barrage)",
+	["varname"] = dmgTypeSelect,
+	["color"] = Color3.fromRGB(255,255,255),
+	["font"] = Enum.Font.Code,
+	["backgroundcolor"] = Color3.fromRGB(25,25,25),
+	["backgroundtransparency"] = 0.5,
+	["upcolor"] = Color3.fromRGB(100,25,200),
+	["downcolor"] = Color3.fromRGB(100,150,255),
+
+	["displayBackgroundColor"] = Color3.fromRGB(0,0,0),
+	["displayTextColor"] = Color3.fromRGB(255,255,255),
+
+	["inc"] = 1,
+	["maxnum"] = 6,
+	["minnum"] = 1,
+	["startnum"] = 1,
+	["displayas"] = 	{
+		[1] = "Default",
+		[2] = "Prime (WIP)",
+		[3] = "Over Heaven",
+		[4] = "Crazy Train",
+		[5] = "Tusk",
+		[6] = "GER",
+	}
+})
+guiAPI.newTabObject(fusionsSubs, baseGUI, "numberbox", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = "Melee Type (Strong)",
+	["varname"] = dmgTypeSelectStrong,
+	["color"] = Color3.fromRGB(255,255,255),
+	["font"] = Enum.Font.Code,
+	["backgroundcolor"] = Color3.fromRGB(25,25,25),
+	["backgroundtransparency"] = 0.5,
+	["upcolor"] = Color3.fromRGB(100,25,200),
+	["downcolor"] = Color3.fromRGB(100,150,255),
+
+	["displayBackgroundColor"] = Color3.fromRGB(0,0,0),
+	["displayTextColor"] = Color3.fromRGB(255,255,255),
+
+	["inc"] = 1,
+	["maxnum"] = 9,
+	["minnum"] = 1,
+	["startnum"] = 1,
+	["displayas"] = 	{
+		[1] = "Default",
+		[2] = "Prime (WIP)",
+		[3] = "Over Heaven",
+		[4] = "Tusk",
+		[5] = "GER",
+		[6] = "GE",
+		[7] = "DD",
+		[8] = "KC",
+		[9] = "CR",
+	}
+})
+guiAPI.newTabObject(fusionsSubs, baseGUI, "textlabel", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = [[fake subs]],
+	["color"] = Color3.fromRGB(255,255,255),
+	["font"] = Enum.Font.Code,
+	["backgroundcolor"] = Color3.fromRGB(25,25,25),
+	["backgroundtransparency"] = 0.5,
+	["scalewithlines"] = false,
+})
+guiAPI.newTabObject(fusionsSubs, baseGUI, "togglebutton1", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = "Toggle Kiss Sub",
+	["togglename"] = kissSubToggle,
+	["color"] = Color3.fromRGB(255,255,255),
+	["font"] = Enum.Font.Code,
+	["backgroundcolor"] = Color3.fromRGB(25,25,25),
+	["backgroundtransparency"] = 0.5,
+	["style"] = "switch",
+	["offcolor"] = Color3.fromRGB(100,25,200),
+	["oncolor"] = Color3.fromRGB(100,150,255),
+})
+guiAPI.newTabObject(fusionsSubs, baseGUI, "numberbox", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = "Projectile Multiplier",
+	["varname"] = kissSubMultAmt,
+	["color"] = Color3.fromRGB(255,255,255),
+	["font"] = Enum.Font.Code,
+	["backgroundcolor"] = Color3.fromRGB(25,25,25),
+	["backgroundtransparency"] = 0.5,
+	["upcolor"] = Color3.fromRGB(100,25,200),
+	["downcolor"] = Color3.fromRGB(100,150,255),
+
+	["displayBackgroundColor"] = Color3.fromRGB(0,0,0),
+	["displayTextColor"] = Color3.fromRGB(255,255,255),
+
+	["inc"] = 1,
+	["maxnum"] = 250,
+	["minnum"] = 1,
+	["startnum"] = 3,
+})
+guiAPI.newTabObject(fusionsSubs, baseGUI, "togglebutton1", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = "Toggle Kiss Sub Position Change",
+	["togglename"] = kissSubPositionToggle,
+	["color"] = Color3.fromRGB(255,255,255),
+	["font"] = Enum.Font.Code,
+	["backgroundcolor"] = Color3.fromRGB(25,25,25),
+	["backgroundtransparency"] = 0.5,
+	["style"] = "switch",
+	["offcolor"] = Color3.fromRGB(100,25,200),
+	["oncolor"] = Color3.fromRGB(100,150,255),
+})
+guiAPI.newTabObject(fusionsSubs, baseGUI, "numberbox", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = "Projectile Position Change Amt",
+	["varname"] = kissSubPositionChangeAmt,
+	["color"] = Color3.fromRGB(255,255,255),
+	["font"] = Enum.Font.Code,
+	["backgroundcolor"] = Color3.fromRGB(25,25,25),
+	["backgroundtransparency"] = 0.5,
+	["upcolor"] = Color3.fromRGB(100,25,200),
+	["downcolor"] = Color3.fromRGB(100,150,255),
+
+	["displayBackgroundColor"] = Color3.fromRGB(0,0,0),
+	["displayTextColor"] = Color3.fromRGB(255,255,255),
+
+	["inc"] = 5,
+	["maxnum"] = 1000,
+	["minnum"] = 0,
+	["startnum"] = 0,
+})
+guiAPI.newTabObject(fusionsSubs, baseGUI, "togglebutton1", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = "X?",
+	["togglename"] = kissPosXToggle,
+	["color"] = Color3.fromRGB(255,255,255),
+	["font"] = Enum.Font.Code,
+	["backgroundcolor"] = Color3.fromRGB(25,25,25),
+	["backgroundtransparency"] = 0.5,
+	["style"] = "switch",
+	["offcolor"] = Color3.fromRGB(100,25,200),
+	["oncolor"] = Color3.fromRGB(100,150,255),
+})
+guiAPI.newTabObject(fusionsSubs, baseGUI, "togglebutton1", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = "Y?",
+	["togglename"] = kissPosYToggle,
+	["color"] = Color3.fromRGB(255,255,255),
+	["font"] = Enum.Font.Code,
+	["backgroundcolor"] = Color3.fromRGB(25,25,25),
+	["backgroundtransparency"] = 0.5,
+	["style"] = "switch",
+	["offcolor"] = Color3.fromRGB(100,25,200),
+	["oncolor"] = Color3.fromRGB(100,150,255),
+})
+guiAPI.newTabObject(fusionsSubs, baseGUI, "togglebutton1", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = "Z?",
+	["togglename"] = kissPosZToggle,
+	["color"] = Color3.fromRGB(255,255,255),
+	["font"] = Enum.Font.Code,
+	["backgroundcolor"] = Color3.fromRGB(25,25,25),
+	["backgroundtransparency"] = 0.5,
+	["style"] = "switch",
+	["offcolor"] = Color3.fromRGB(100,25,200),
+	["oncolor"] = Color3.fromRGB(100,150,255),
+})
+guiAPI.newTabObject(fusionsSubs, baseGUI, "togglebutton1", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = "Invert Position Change",
+	["togglename"] = kissSubPositionInvertToggle,
+	["color"] = Color3.fromRGB(255,255,255),
+	["font"] = Enum.Font.Code,
+	["backgroundcolor"] = Color3.fromRGB(25,25,25),
+	["backgroundtransparency"] = 0.5,
+	["style"] = "switch",
+	["offcolor"] = Color3.fromRGB(100,25,200),
+	["oncolor"] = Color3.fromRGB(100,150,255),
+})
+
+guiAPI.newTabObject(autofarmTab, baseGUI, "whitespace", {
+	["size"] = 0.05,
+})
+guiAPI.newTabObject(autofarmTab, baseGUI, "togglebutton1", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = "Toggle Stand Farm",
+	["togglename"] = standFarmToggle,
+	["color"] = Color3.fromRGB(255,255,255),
+	["font"] = Enum.Font.Code,
+	["backgroundcolor"] = Color3.fromRGB(25,25,25),
+	["backgroundtransparency"] = 0.5,
+	["style"] = "switch",
+	["offcolor"] = Color3.fromRGB(100,25,200),
+	["oncolor"] = Color3.fromRGB(100,150,255),
+})
+local itemGUI = nil
+local farmedStands = {}
+guiAPI.newTabObject(autofarmTab, baseGUI, "functionbutton", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = "pick acceptable stand",
+	["font"] = Enum.Font.Code,
+	["color"] = Color3.fromRGB(255,255,255),
+	["backgroundcolor"] = Color3.fromRGB(155,50,50),
+	["strokecolor"] = Color3.fromRGB(100,25,25),
+	["transparency"] = 0.25,
+	["pressfunction"] = function()
+		clickSound()
+		if itemGUI then
+			if itemGUI.Parent == nil then
+				itemGUI = nil
+			end
+		end
+
+		if not itemGUI then
+			itemGUI = guiAPI.CreateNewWindow(0.15, 8, "Main", "basis", true, true, false, "stands", "lol", nil, {
+				["size"] = UDim2.new(0, 85, 0, 85),
+				["padding"] = UDim2.new(0,2,0,2),
+			})
+			for i,v in pairs(repStorage.Stands:GetChildren()) do
+				local tier = v:FindFirstChild("tier")
+				if tier then
+					guiAPI.newTabObject("lol", itemGUI, "togglebutton2", {
+						["size"] = UDim2.new(1,0,0.1,0),
+						["text"] = v.Name..": ",
+						["LayoutOrder"] = tier.Value,
+						["togglename"] = v.Name,
+						["tableaddto"] = farmedStands,
+						["font"] = Enum.Font.Code,
+						["color"] = Color3.fromRGB(255,255,255),
+						["backgroundcolor"] = Color3.fromRGB(25,25,25),
+						["backgroundtransparency"] = 0.5,
+						["style"] = "box",
+						["offcolor"] = Color3.fromRGB(200,200,200),
+						["oncolor"] = Color3.fromRGB(0,200,0),
+					})
+				end
+			end
+			guiAPI.refreshWindow(itemGUI)
+		end
+	end,
+})
+
+local tortureToggle = "tortureToggle"
+local nukeEmAllToggle = "nukeEmAllToggle"
+
+local hdStunToggle = "hdStunToggle"
+local wouIllusionToggle = "wouIllusionToggle"
+local echoesTrioToggle = "echoesTrioToggle"
+local harvestStealToggle = "harvestStealToggle"
+local barnacleToggle = "barnacleToggle"
+local literallyNukeEmToggle = "literallyNukeEmToggle"
+local harvestDrunkToggle = "harvestDrunkToggle"
+local stickyDuoToggle = "stickyDuoToggle"
+local decapitationToggle = "decapitationToggle"
+local heirophantStunToggle = "heirophantStunToggle"
+local freezeToggle = "freezeToggle"
+local yoAngeloToggle = "yoAngeloToggle"
+local jurassicParkToggle = "jurassicParkToggle"
+local discStealToggle = "discStealToggle"
+local whyAreYouHittingYourselfToggle = "whyAreYouHittingYourselfToggle"
+local gravityPushToggle = "gravityPushToggle"
+local addToTortureListPanel = nil
+local removeFromTortureListPanel = nil
+
+guiAPI.newTabObject(goofyTab, baseGUI, "textlabel", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = [[its goofin time]],
+	["color"] = Color3.fromRGB(255,255,255),
+	["font"] = Enum.Font.Code,
+	["backgroundcolor"] = Color3.fromRGB(25,25,25),
+	["backgroundtransparency"] = 0.5,
+	["scalewithlines"] = false,
+})
+guiAPI.newTabObject(goofyTab, baseGUI, "whitespace", {
+	["size"] = 0.05,
+})
+local kysList = {}
+local kysListGang = {"Mix", "😼", "Down & Co."}
+local protectedPeople = {}
+
+local addPlrNameThing = "addPlr"
+guiAPI.newTabObject(goofyTab, baseGUI, "functionbutton", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = "Add to torture list",
+	["font"] = Enum.Font.Code,
+	["color"] = Color3.fromRGB(255,255,255),
+	["backgroundcolor"] = Color3.fromRGB(155,50,50),
+	["strokecolor"] = Color3.fromRGB(100,25,25),
+	["transparency"] = 0.25,
+	["pressfunction"] = function()
+		clickSound()
+		if addToTortureListPanel then
+			if addToTortureListPanel.Parent == nil then
+				addToTortureListPanel = nil
+			end
+		end
+
+		if not addToTortureListPanel then
+			addToTortureListPanel = guiAPI.CreateNewWindow(0.15, 8, "Main", "basis", true, true, false, "Add peeps to the torture list.", addPlrNameThing, nil, {
+				["size"] = UDim2.new(0, 85, 0, 85),
+				["padding"] = UDim2.new(0,2,0,2),
+			})
+
+			local keys = {}
+			local childaddedconnection = nil
+			local removingguiconnection = nil
+			local function update()
+				for i,v in pairs(keys) do
+					thingsInTabs[v] = nil
+				end
+				for i,v in pairs(game.Players:GetChildren()) do
+					if table.find(kysList, v.Name) then
+						
+					else
+						local keygot = guiAPI.newTabObject(addPlrNameThing, addToTortureListPanel, "functionbutton", {
+							["size"] = UDim2.new(1,0,0.1,0),
+							["text"] = v.Name,
+							["font"] = Enum.Font.Code,
+							["color"] = Color3.fromRGB(255,255,255),
+							["backgroundcolor"] = Color3.fromRGB(155,50,50),
+							["strokecolor"] = Color3.fromRGB(100,25,25),
+							["transparency"] = 0.25,
+							["pressfunction"] = function()
+								clickSound()
+								table.insert(kysList, v.Name)
+								update()
+							end,
+						})
+						if keys ~= nil and keygot ~= nil then
+							table.insert(keys, keygot)
+						end
+					end
+				end
+
+				guiAPI.refreshWindow(addToTortureListPanel)
+			end
+			update()
+			childaddedconnection = players.ChildAdded:Connect(function()
+				update()
+			end)
+			local corthing = coroutine.wrap(function()
+				repeat
+					task.wait(0.25)
+					if addToTortureListPanel ~= nil and update ~= nil then
+						update()
+					end
+				until addToTortureListPanel == nil
+			end)
+			corthing()
+			removingguiconnection = addToTortureListPanel.Destroying:Connect(function()
+				childaddedconnection:Disconnect()
+				update = nil
+				keys = nil
+				removingguiconnection:Disconnect()
+			end)
+
+			guiAPI.refreshWindow(addToTortureListPanel)
+		end
+	end,
+})
+local removePlrNameThing = "removePlr"
+guiAPI.newTabObject(goofyTab, baseGUI, "functionbutton", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = "Remove from torture list",
+	["font"] = Enum.Font.Code,
+	["color"] = Color3.fromRGB(255,255,255),
+	["backgroundcolor"] = Color3.fromRGB(155,50,50),
+	["strokecolor"] = Color3.fromRGB(100,25,25),
+	["transparency"] = 0.25,
+	["pressfunction"] = function()
+		clickSound()
+		if removeFromTortureListPanel then
+			if removeFromTortureListPanel.Parent == nil then
+				removeFromTortureListPanel = nil
+			end
+		end
+
+		if not removeFromTortureListPanel then
+			removeFromTortureListPanel = guiAPI.CreateNewWindow(0.15, 8, "Main", "basis", true, true, false, "Remove peeps from the torture list.", removePlrNameThing, nil, {
+				["size"] = UDim2.new(0, 85, 0, 85),
+				["padding"] = UDim2.new(0,2,0,2),
+			})
+
+			local keys = {}
+			local childaddedconnection = nil
+			local removingguiconnection = nil
+			local function update()
+				for i,v in pairs(keys) do
+					thingsInTabs[v] = nil
+				end
+				for i,v in pairs(kysList) do
+					local keygot = guiAPI.newTabObject(removePlrNameThing, removeFromTortureListPanel, "functionbutton", {
+						["size"] = UDim2.new(1,0,0.1,0),
+						["text"] = v,
+						["font"] = Enum.Font.Code,
+						["color"] = Color3.fromRGB(255,255,255),
+						["backgroundcolor"] = Color3.fromRGB(155,50,50),
+						["strokecolor"] = Color3.fromRGB(100,25,25),
+						["transparency"] = 0.25,
+						["pressfunction"] = function()
+							clickSound()
+							table.remove(kysList, table.find(kysList, v))
+							update()
+						end,
+					})
+					if keys ~= nil and keygot ~= nil then
+						table.insert(keys, keygot)
+					end
+				end
+
+				guiAPI.refreshWindow(removeFromTortureListPanel)
+			end
+			update()
+			childaddedconnection = players.ChildAdded:Connect(function()
+				update()
+			end)
+			local corthing = coroutine.wrap(function()
+				repeat
+					task.wait(0.25)
+					if removeFromTortureListPanel ~= nil and update ~= nil then
+						update()
+					end
+				until removeFromTortureListPanel == nil
+			end)
+			corthing()
+			removingguiconnection = removeFromTortureListPanel.Destroying:Connect(function()
+				childaddedconnection:Disconnect()
+				update = nil
+				keys = nil
+				removingguiconnection:Disconnect()
+			end)
+
+			guiAPI.refreshWindow(removeFromTortureListPanel)
+		end
+	end,
+})
+guiAPI.newTabObject(goofyTab, baseGUI, "whitespace", {
+	["size"] = 0.05,
+})
+guiAPI.newTabObject(goofyTab, baseGUI, "togglebutton1", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = "Toggle Torture",
+	["togglename"] = tortureToggle,
+	["color"] = Color3.fromRGB(255,255,255),
+	["font"] = Enum.Font.Code,
+	["backgroundcolor"] = Color3.fromRGB(25,25,25),
+	["backgroundtransparency"] = 0.5,
+	["style"] = "switch",
+	["offcolor"] = Color3.fromRGB(100,25,200),
+	["oncolor"] = Color3.fromRGB(100,150,255),
+})
+guiAPI.newTabObject(goofyTab, baseGUI, "togglebutton1", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = "NUKE EM ALL 1987 LIFE IS A FUCK",
+	["togglename"] = nukeEmAllToggle,
+	["color"] = Color3.fromRGB(255,255,255),
+	["font"] = Enum.Font.Code,
+	["backgroundcolor"] = Color3.fromRGB(25,25,25),
+	["backgroundtransparency"] = 0.5,
+	["style"] = "switch",
+	["offcolor"] = Color3.fromRGB(100,25,200),
+	["oncolor"] = Color3.fromRGB(100,150,255),
+})
+guiAPI.newTabObject(goofyTab, baseGUI, "textlabel", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = [[--torture effects--]],
+	["color"] = Color3.fromRGB(255,255,255),
+	["font"] = Enum.Font.Code,
+	["backgroundcolor"] = Color3.fromRGB(25,25,25),
+	["backgroundtransparency"] = 0.5,
+	["scalewithlines"] = false,
+})
+
+guiAPI.newTabObject(goofyTab, baseGUI, "togglebutton1", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = "HD Stun Toggle",
+	["togglename"] = hdStunToggle,
+	["color"] = Color3.fromRGB(255,255,255),
+	["font"] = Enum.Font.Code,
+	["backgroundcolor"] = Color3.fromRGB(25,25,25),
+	["backgroundtransparency"] = 0.5,
+	["style"] = "switch",
+	["offcolor"] = Color3.fromRGB(100,25,200),
+	["oncolor"] = Color3.fromRGB(100,150,255),
+})
+guiAPI.newTabObject(goofyTab, baseGUI, "togglebutton1", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = "WOU Illusion Toggle",
+	["togglename"] = wouIllusionToggle,
+	["color"] = Color3.fromRGB(255,255,255),
+	["font"] = Enum.Font.Code,
+	["backgroundcolor"] = Color3.fromRGB(25,25,25),
+	["backgroundtransparency"] = 0.5,
+	["style"] = "switch",
+	["offcolor"] = Color3.fromRGB(100,25,200),
+	["oncolor"] = Color3.fromRGB(100,150,255),
+})
+guiAPI.newTabObject(goofyTab, baseGUI, "togglebutton1", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = "Echoes Toggle",
+	["togglename"] = echoesTrioToggle,
+	["color"] = Color3.fromRGB(255,255,255),
+	["font"] = Enum.Font.Code,
+	["backgroundcolor"] = Color3.fromRGB(25,25,25),
+	["backgroundtransparency"] = 0.5,
+	["style"] = "switch",
+	["offcolor"] = Color3.fromRGB(100,25,200),
+	["oncolor"] = Color3.fromRGB(100,150,255),
+})
+guiAPI.newTabObject(goofyTab, baseGUI, "togglebutton1", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = "Harvest Steal Toggle",
+	["togglename"] = harvestStealToggle,
+	["color"] = Color3.fromRGB(255,255,255),
+	["font"] = Enum.Font.Code,
+	["backgroundcolor"] = Color3.fromRGB(25,25,25),
+	["backgroundtransparency"] = 0.5,
+	["style"] = "switch",
+	["offcolor"] = Color3.fromRGB(100,25,200),
+	["oncolor"] = Color3.fromRGB(100,150,255),
+})
+guiAPI.newTabObject(goofyTab, baseGUI, "togglebutton1", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = "Barnacle Toggle",
+	["togglename"] = barnacleToggle,
+	["color"] = Color3.fromRGB(255,255,255),
+	["font"] = Enum.Font.Code,
+	["backgroundcolor"] = Color3.fromRGB(25,25,25),
+	["backgroundtransparency"] = 0.5,
+	["style"] = "switch",
+	["offcolor"] = Color3.fromRGB(100,25,200),
+	["oncolor"] = Color3.fromRGB(100,150,255),
+})
+guiAPI.newTabObject(goofyTab, baseGUI, "togglebutton1", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = "Nuke Toggle",
+	["togglename"] = literallyNukeEmToggle,
+	["color"] = Color3.fromRGB(255,255,255),
+	["font"] = Enum.Font.Code,
+	["backgroundcolor"] = Color3.fromRGB(25,25,25),
+	["backgroundtransparency"] = 0.5,
+	["style"] = "switch",
+	["offcolor"] = Color3.fromRGB(100,25,200),
+	["oncolor"] = Color3.fromRGB(100,150,255),
+})
+guiAPI.newTabObject(goofyTab, baseGUI, "togglebutton1", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = "Harvest Inject Toggle",
+	["togglename"] = harvestDrunkToggle,
+	["color"] = Color3.fromRGB(255,255,255),
+	["font"] = Enum.Font.Code,
+	["backgroundcolor"] = Color3.fromRGB(25,25,25),
+	["backgroundtransparency"] = 0.5,
+	["style"] = "switch",
+	["offcolor"] = Color3.fromRGB(100,25,200),
+	["oncolor"] = Color3.fromRGB(100,150,255),
+})
+guiAPI.newTabObject(goofyTab, baseGUI, "togglebutton1", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = "Arm Detach Toggle",
+	["togglename"] = stickyDuoToggle,
+	["color"] = Color3.fromRGB(255,255,255),
+	["font"] = Enum.Font.Code,
+	["backgroundcolor"] = Color3.fromRGB(25,25,25),
+	["backgroundtransparency"] = 0.5,
+	["style"] = "switch",
+	["offcolor"] = Color3.fromRGB(100,25,200),
+	["oncolor"] = Color3.fromRGB(100,150,255),
+})
+guiAPI.newTabObject(goofyTab, baseGUI, "togglebutton1", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = "Decapitation Toggle",
+	["togglename"] = decapitationToggle,
+	["color"] = Color3.fromRGB(255,255,255),
+	["font"] = Enum.Font.Code,
+	["backgroundcolor"] = Color3.fromRGB(25,25,25),
+	["backgroundtransparency"] = 0.5,
+	["style"] = "switch",
+	["offcolor"] = Color3.fromRGB(100,25,200),
+	["oncolor"] = Color3.fromRGB(100,150,255),
+})
+guiAPI.newTabObject(goofyTab, baseGUI, "togglebutton1", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = "Tentacle Stun Toggle",
+	["togglename"] = heirophantStunToggle,
+	["color"] = Color3.fromRGB(255,255,255),
+	["font"] = Enum.Font.Code,
+	["backgroundcolor"] = Color3.fromRGB(25,25,25),
+	["backgroundtransparency"] = 0.5,
+	["style"] = "switch",
+	["offcolor"] = Color3.fromRGB(100,25,200),
+	["oncolor"] = Color3.fromRGB(100,150,255),
+})
+guiAPI.newTabObject(goofyTab, baseGUI, "togglebutton1", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = "Freeze Toggle",
+	["togglename"] = freezeToggle,
+	["color"] = Color3.fromRGB(255,255,255),
+	["font"] = Enum.Font.Code,
+	["backgroundcolor"] = Color3.fromRGB(25,25,25),
+	["backgroundtransparency"] = 0.5,
+	["style"] = "switch",
+	["offcolor"] = Color3.fromRGB(100,25,200),
+	["oncolor"] = Color3.fromRGB(100,150,255),
+})
+guiAPI.newTabObject(goofyTab, baseGUI, "togglebutton1", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = "Rock Trap Toggle",
+	["togglename"] = yoAngeloToggle,
+	["color"] = Color3.fromRGB(255,255,255),
+	["font"] = Enum.Font.Code,
+	["backgroundcolor"] = Color3.fromRGB(25,25,25),
+	["backgroundtransparency"] = 0.5,
+	["style"] = "switch",
+	["offcolor"] = Color3.fromRGB(100,25,200),
+	["oncolor"] = Color3.fromRGB(100,150,255),
+})
+guiAPI.newTabObject(goofyTab, baseGUI, "togglebutton1", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = "Jurassic Park Toggle",
+	["togglename"] = jurassicParkToggle,
+	["color"] = Color3.fromRGB(255,255,255),
+	["font"] = Enum.Font.Code,
+	["backgroundcolor"] = Color3.fromRGB(25,25,25),
+	["backgroundtransparency"] = 0.5,
+	["style"] = "switch",
+	["offcolor"] = Color3.fromRGB(100,25,200),
+	["oncolor"] = Color3.fromRGB(100,150,255),
+})
+guiAPI.newTabObject(goofyTab, baseGUI, "togglebutton1", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = "Disc Steal Toggle",
+	["togglename"] = discStealToggle,
+	["color"] = Color3.fromRGB(255,255,255),
+	["font"] = Enum.Font.Code,
+	["backgroundcolor"] = Color3.fromRGB(25,25,25),
+	["backgroundtransparency"] = 0.5,
+	["style"] = "switch",
+	["offcolor"] = Color3.fromRGB(100,25,200),
+	["oncolor"] = Color3.fromRGB(100,150,255),
+})
+guiAPI.newTabObject(goofyTab, baseGUI, "togglebutton1", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = "Why're you hitting yourself?",
+	["togglename"] = whyAreYouHittingYourselfToggle,
+	["color"] = Color3.fromRGB(255,255,255),
+	["font"] = Enum.Font.Code,
+	["backgroundcolor"] = Color3.fromRGB(25,25,25),
+	["backgroundtransparency"] = 0.5,
+	["style"] = "switch",
+	["offcolor"] = Color3.fromRGB(100,25,200),
+	["oncolor"] = Color3.fromRGB(100,150,255),
+})
+guiAPI.newTabObject(goofyTab, baseGUI, "togglebutton1", {
+	["size"] = UDim2.new(1,0,0.1,0),
+	["text"] = "Gravity Push Toggle",
+	["togglename"] = gravityPushToggle,
+	["color"] = Color3.fromRGB(255,255,255),
+	["font"] = Enum.Font.Code,
+	["backgroundcolor"] = Color3.fromRGB(25,25,25),
+	["backgroundtransparency"] = 0.5,
+	["style"] = "switch",
+	["offcolor"] = Color3.fromRGB(100,25,200),
+	["oncolor"] = Color3.fromRGB(100,150,255),
+})
+
+local http = game:GetService('HttpService')
+local dataName = "BallpeetGUISavedData.json"
+local function loadSavedData()
+	if isfile(dataName) then
+		local decoded = http:JSONDecode(readfile(dataName))
+		kysList = decoded.kysListSaved
+		--buttonValues = decoded.optionSelectSaved
+		for i,v in pairs(decoded.optionSelectSaved) do
+			if buttonValues[i] ~= nil then
+				buttonValues[i] = v
+			end
+		end
+	end
+end
+
+local function saveData()
+	writefile(dataName, http:JSONEncode({
+		kysListSaved = kysList,
+		optionSelectSaved = buttonValues
+	}))
+	print("Saved")
+end
+loadSavedData()
+guiAPI.refreshWindow(baseGUI)
+
+local ta = specials.timeacceleration
+---zxc02kl;asdmgmj29s
+local unireset = specials.universereset
+--dfslk9hgi3jasd0i2eihiasficx93
+
+local character = player.Character
+local base = character.HumanoidRootPart.CFrame
+local randomcf = nil
+local randomcf2 = Vector3.new(math.random(-100,100)/100,math.random(-20,20)/100,math.random(-100,100)/100)		
+local look = CFrame.new(base.Position, base.Position + randomcf2)
+local hovering = {}
+
+local humroot = nil
+local hum = nil
+local ownVoiceline = nil
+local tallys = {}
+
+local pgrab = specials.pgrab
+
+
+local saveTally = 0
+local killLoop = coroutine.wrap(function()
+	repeat
+		task.wait(0.1)
+		saveTally = saveTally + 1
+		if saveTally >= 100 then
+			print("Saving")
+			saveTally = 0 
+			saveData()
+		end
+		local success, errormes = pcall(function()
+			character = player.Character
+			ownVoiceline = character.Torso:FindFirstChild("voiceline")
+			humroot = character.HumanoidRootPart
+
+			if buttonValues[immortalityToggle] == true then
+				local charHum = character:FindFirstChildOfClass("Humanoid")
+
+				if charHum then
+					if charHum.Health ~= math.huge then
+						local got = hitbox:InvokeServer(0, humroot, humroot.CFrame, -math.huge, ownVoiceline, charHum, false, false, false)
+					end
+				end
+			end
+            if buttonValues[dummySmiterToggle] == true then
+				for i2, v2 in pairs(game.Workspace:GetChildren()) do
+					if v2.Name ~= "Rubber Dummy" then
+						local humthing = v2:FindFirstChild("Humanoid")
+						local plrfound = game.Players:GetPlayerFromCharacter(v2)
+						if humthing and plrfound == nil then
+							local torso = v2:FindFirstChild("HumanoidRootPart") or v2:FindFirstChild("Torso")
+							spawn(function ()
+								if humthing.Health ~= humthing.Health then
+									forceKill(humthing)
+								end
+								if buttonValues[spawnDinosToggle] == true then
+									local got = hitbox:InvokeServer(65, torso, torso.CFrame, 0.5, ownVoiceline, humthing, false, false, false)
+								end
+								if humthing.Health > 0 then
+									local got = hitbox:InvokeServer(55, torso, torso.CFrame, 20000, ownVoiceline, humthing, false, false, false)
+								end
+							end)
+						end
+					end
+				end
+            end
+			if buttonValues[tortureToggle] == true then
+				for i,v in pairs(game.Players:GetChildren()) do
+					local character2;
+					local humroot2;
+					local humtorso2;
+					local hum;
+					local voiceline;
+					local money = v:FindFirstChild("Money")
+					pcall(function()
+						character2 = v.Character
+						humroot2 = character2.HumanoidRootPart
+						humtorso2 = character2.Torso
+						hum = character2:FindFirstChild("Humanoid")
+						voiceline = character2.Torso.voiceline	
+					end)
+					--7
+					-- 83
+					-- 65 (dino)
+					-- 32 (ws steal)
+					-- 128 (dbm barnacle)
+					-- use harvest drunk
+					-- 28 (ge overload)
+					-- 29 (super ge overload)
+					
+					local gettingPwned = false
+					local gang = v:FindFirstChild("Gang")
+
+					--[[
+
+					if gang then
+						if table.find(kysListGang, gang.Value) then
+							gettingPwned = true
+						end
+					end
+
+					]]
+
+					if table.find(kysList, v.Name) then
+						gettingPwned = true
+					end
+					if buttonValues[nukeEmAllToggle] == true then
+						if v ~= player then
+							gettingPwned = true
+						end
+					end
+					if table.find(protectedPeople, v.Name) then
+						gettingPwned = false
+					end
+					
+					if gettingPwned == true then
+						if not tallys[v.Name] then
+							tallys[v.Name] = {}
+						end
+						if game.Workspace.timestopped.Value == false then
+							for index,value in pairs(buttonValues) do
+								if not tallys[v.Name][index] then
+									tallys[v.Name][index] = 0
+								end
+								if value == true then
+									tallys[v.Name][index] = math.clamp(tallys[v.Name][index] + 0.1, 0, 2)
+								end
+							end
+						end
+
+						if buttonValues[wouIllusionToggle] == true then
+							illusion:FireServer(character2)
+						end
+						if buttonValues[echoesTrioToggle] == true and game.Workspace.timestopped.Value == false then
+							if tallys[v.Name][echoesTrioToggle] >= 0.2 then
+								tallys[v.Name][echoesTrioToggle] = tallys[v.Name][echoesTrioToggle] - 0.2
+								spawn(function ()
+									local got = hitbox:InvokeServer(97, humtorso2, humtorso2.CFrame, 0, voiceline, hum, false, false, false)
+									local got = hitbox:InvokeServer(96, humtorso2, humtorso2.CFrame, 0, voiceline, hum, false, false, false)
+									local got = hitbox:InvokeServer(95, humtorso2, humtorso2.CFrame, 0, voiceline, hum, false, false, false)
+								end)
+							end
+						end
+						if buttonValues[gravityPushToggle] == true and game.Workspace.timestopped.Value == false then
+							if tallys[v.Name][gravityPushToggle] >= 1 then
+								tallys[v.Name][gravityPushToggle] = tallys[v.Name][gravityPushToggle] - 1
+								spawn(function ()
+									local got = hitbox:InvokeServer(39, humtorso2, humtorso2.CFrame, 0, voiceline, hum, false, false, false)
+								end)
+							end
+						end
+						if buttonValues[whyAreYouHittingYourselfToggle] == true and game.Workspace.timestopped.Value == false then
+							if tallys[v.Name][whyAreYouHittingYourselfToggle] >= 0.7 then
+								tallys[v.Name][whyAreYouHittingYourselfToggle] = tallys[v.Name][whyAreYouHittingYourselfToggle] - 0.7
+								spawn(function ()
+									local got = hitbox:InvokeServer(40, humtorso2, humtorso2.CFrame, 0, voiceline, hum, false, false, false)
+								end)
+							end
+						end
+						if buttonValues[heirophantStunToggle] == true and game.Workspace.timestopped.Value == false then
+							if tallys[v.Name][heirophantStunToggle] >= 0.4 then
+								tallys[v.Name][heirophantStunToggle] = tallys[v.Name][heirophantStunToggle] - 0.4
+								spawn(function ()
+									local got = hitbox:InvokeServer(27, humtorso2, humtorso2.CFrame, 0, voiceline, hum, false, false, false)
+								end)
+							end
+						end
+						if buttonValues[yoAngeloToggle] == true and game.Workspace.timestopped.Value == false then
+							if tallys[v.Name][yoAngeloToggle] >= 0.1 then
+								tallys[v.Name][yoAngeloToggle] = tallys[v.Name][yoAngeloToggle] - 0.1
+								spawn(function ()
+									local got = hitbox:InvokeServer(9, humtorso2, humtorso2.CFrame, 0, voiceline, hum, false, false, false)
+								end)
+							end
+						end
+						if buttonValues[stickyDuoToggle] == true and game.Workspace.timestopped.Value == false then
+							if tallys[v.Name][stickyDuoToggle] >= 1 then
+								tallys[v.Name][stickyDuoToggle] = tallys[v.Name][stickyDuoToggle] - 1
+								spawn(function ()
+									local got = hitbox:InvokeServer(102, humtorso2, humtorso2.CFrame, 0, voiceline, hum, false, false, false)
+								end)
+							end
+						end
+						if buttonValues[decapitationToggle] == true and game.Workspace.timestopped.Value == false then
+							if tallys[v.Name][decapitationToggle] >= 1 then
+								tallys[v.Name][decapitationToggle] = tallys[v.Name][decapitationToggle] - 1
+								spawn(function ()
+									local got = hitbox:InvokeServer(77, humtorso2, humtorso2.CFrame, 0, voiceline, hum, false, false, false)
+								end)
+							end
+						end
+						if buttonValues[freezeToggle] == true and game.Workspace.timestopped.Value == false then
+							if tallys[v.Name][freezeToggle] >= 0.5 then
+								tallys[v.Name][freezeToggle] = tallys[v.Name][freezeToggle] - 0.2
+								spawn(function ()
+									local got = hitbox:InvokeServer(5, humtorso2, humtorso2.CFrame, 0, voiceline, hum, false, false, false)
+									local got = hitbox:InvokeServer(89, humtorso2, humtorso2.CFrame, 0, voiceline, hum, false, false, false)
+								end)
+							end
+						end
+						if buttonValues[barnacleToggle] == true and game.Workspace.timestopped.Value == false then
+							if tallys[v.Name][barnacleToggle] >= 0.1 then
+								tallys[v.Name][barnacleToggle] = tallys[v.Name][barnacleToggle] - 0.1
+								spawn(function ()
+									local got = hitbox:InvokeServer(128, humtorso2, humtorso2.CFrame, 0, voiceline, hum, false, false, false)
+								end)
+							end
+						end
+						if buttonValues[discStealToggle] == true and game.Workspace.timestopped.Value == false then
+							if tallys[v.Name][discStealToggle] >= 0.4 then
+								tallys[v.Name][discStealToggle] = tallys[v.Name][discStealToggle] - 0.4
+								spawn(function ()
+									local got = hitbox:InvokeServer(32, humtorso2, humtorso2.CFrame, 0, voiceline, hum, false, false, false)
+								end)
+							end
+						end
+						if buttonValues[jurassicParkToggle] == true and game.Workspace.timestopped.Value == false then
+							if tallys[v.Name][jurassicParkToggle] >= 0.5 then
+								tallys[v.Name][jurassicParkToggle] = tallys[v.Name][jurassicParkToggle] - 0.5
+								spawn(function ()
+									local got = hitbox:InvokeServer(65, humtorso2, humtorso2.CFrame, 0, voiceline, hum, false, false, false)
+								end)
+							end
+						end
+						if buttonValues[literallyNukeEmToggle] == true and game.Workspace.timestopped.Value == false then
+							if tallys[v.Name][literallyNukeEmToggle] >= 0.2 then
+								tallys[v.Name][literallyNukeEmToggle] = tallys[v.Name][literallyNukeEmToggle] - 0.2
+								nuke:FireServer(humtorso2.CFrame, 100, voiceline, voiceline)
+							end
+						end
+						if buttonValues[harvestStealToggle] == true and game.Workspace.timestopped.Value == false then
+							if money then
+								if money.Value > 0 then
+									if tallys[v.Name][harvestStealToggle] > 0.3 then
+										tallys[v.Name][harvestStealToggle] = tallys[v.Name][harvestStealToggle] - 0.3
+										--spawn(function ()
+										--	local got = hitbox:InvokeServer(7, humtorso2, humtorso2.CFrame, 15, voiceline, hum, false, false, false)
+										--end)
+										harvestSteal:FireServer(humtorso2.CFrame * CFrame.new(1,1,1), humtorso2.CFrame, voiceline)
+									end
+								end
+							end
+						end
+						if buttonValues[harvestDrunkToggle] == true and game.Workspace.timestopped.Value == false then
+							if tallys[v.Name][harvestDrunkToggle] > 0.3 then
+								tallys[v.Name][harvestDrunkToggle] = tallys[v.Name][harvestDrunkToggle] - 0.3
+
+								harvestInject:FireServer(humtorso2.CFrame * CFrame.new(1,1,1), humtorso2.CFrame, voiceline)
+							end
+						end
+						local stunned = character2:FindFirstChild("silenced")
+						if stunned then
+							if stunned.Value == false then
+								if buttonValues[hdStunToggle] == true and game.Workspace.timestopped.Value == false then
+									if tallys[v.Name][hdStunToggle] > 0.5 then
+										tallys[v.Name][hdStunToggle] = tallys[v.Name][hdStunToggle] - 0.5
+										spawn(function ()
+											local got = hitbox:InvokeServer(83, humtorso2, humtorso2.CFrame, 0, voiceline, hum, false, false, false)
+										end)
+									end
+								end
+							end
+						end
+					end
+				end
+            end
+			if buttonValues[dummySmiterToggle] == true then
+
+            end
+
+		end)
+		if not success then
+			warn(errormes)
+		end
+	until closed == true
+end)
+killLoop()
+
+local invoid = false
+local indimension = false
+local standval = player:FindFirstChild("Stand")
+local moneyval = player:FindFirstChild("Money")
+local mainLoop = coroutine.wrap(function()
+	repeat
+		task.wait(0.1)
+		local success, errormes = pcall(function()
+			character = player.Character
+			ownVoiceline = character.Torso:FindFirstChild("voiceline")
+			humroot = character.HumanoidRootPart
+			hum = character:FindFirstChildOfClass("Humanoid")
+
+			if buttonValues[noCooldownToggle] == true then
+				_G.noCooldownActive = true
+			else
+				_G.noCooldownActive = false
+			end
+			if buttonValues[twauSubToggle] == true then
+				_G.twauSubActive = true
+			else
+				_G.twauSubActive = false
+			end
+			if buttonValues[ssbSubToggle] == true then
+				_G.ssbSubActive = true
+			else
+				_G.ssbSubActive = false
+			end
+			if buttonValues[dimensionToggle] == true then
+				if indimension == false then
+					indimension = true
+					d4cflag:FireServer(humroot.CFrame, true, "asdu92jaszxcmiu29ifd9uy73")
+				end
+			else
+				if indimension == true then
+					indimension = false
+					d4cflag:FireServer(humroot.CFrame, false, "asdu92jaszxcmiu29ifd9uy73")
+				end
+			end
+			if buttonValues[creamVoidToggle] == true then
+				if invoid == false then
+					invoid = true
+					voiddim:FireServer(true)
+				end
+				if invoid == true then
+					creamball:FireServer(CFrame.new(0,0,0))
+				end
+			else
+				if invoid == true then
+					invoid = false
+					voiddim:FireServer(false)
+				end
+			end
+            if buttonValues[standFarmToggle] == true then
+
+				local currentchar = character
+				if standval.Value == "None" then
+					local found = false
+					local tool = nil
+					if player.Backpack:FindFirstChild("LuckyStandArrow") or character:FindFirstChild("LuckyStandArrow") then
+						found = true
+						tool = player.Backpack:FindFirstChild("LuckyStandArrow") or character:FindFirstChild("LuckyStandArrow")
+					else
+						if player.Backpack:FindFirstChild("StandArrow") or character:FindFirstChild("StandArrow") then
+							found = true
+							tool = player.Backpack:FindFirstChild("StandArrow") or character:FindFirstChild("StandArrow")
+						end
+					end
+					if found == false then
+						if moneyval.Value > 30000 then
+							buyitem:FireServer("LuckyStandArrow")
+							found = true
+							tool = player.Backpack:WaitForChild("LuckyStandArrow")
+						else
+							if moneyval.Value > 3500 then
+								buyitem:FireServer("StandArrow")
+								found = true
+								tool = player.Backpack:WaitForChild("StandArrow")
+							end
+						end
+					end
+
+					if found == true and tool ~= nil then
+						hum:EquipTool(tool)
+						repeat
+							task.wait(0.1)
+						until tool.Parent == nil or tool.Parent == character
+						if tool.Name == "StandArrow" then
+							arrowUse:InvokeServer(tool, character, 0)
+							repeat
+								task.wait(0.1)
+							until currentchar.Parent == nil
+						elseif tool.Name == "LuckyStandArrow" then
+							luckyArrowUse:InvokeServer(tool, character, 0)
+							repeat
+								task.wait(0.1)
+							until currentchar.Parent == nil
+						end
+						repeat
+							task.wait(0.1)
+						until standval.Value ~= "None"
+					end
+				else
+					if table.find(farmedStands, standval.Value) then
+
+					else
+						rohanTalk:FireServer(false, true)
+						repeat
+							task.wait(0.1)
+						until currentchar.Parent == nil and standval.Value == "None"
+					end
+				end
+            end
+		end)
+		if not success then
+			warn(errormes)
+		end
+	until closed == true
+end)
+mainLoop()
+
+local deltThing = 0
+local renderstep = runServ.RenderStepped:Connect(function(delta)
+    deltThing = math.clamp(deltThing + delta, 0, 2)
+    local success, errormes = pcall(function()
+
+    end)
+    if not success then
+        warn(errormes)
+    end
+end)
+table.insert(savedConnections, renderstep)
+local charaddedevent = function(charadded)
+	char = charadded
+
+	local charaddedconnect = char.ChildAdded:Connect(function(part)
+		if part.Name == "harvestattack" then
+			spawn(function ()
+				task.wait(0.1)
+				part:Destroy()
+			end)
+		end
+	end)
+	table.insert(savedConnections, charaddedconnect)
+end
+
+
+_G.twauLineIndex = 0
+_G.ssbLineIndex = 0
+
+_G.ssb = "Star-SpangledBanner"
+_G.twau = "TheWorld(AlternateUniverse)"
+
+local function goThruStandScripts()
+	_G.twauLineIndex = 0
+	_G.ssbLineIndex = 0
+
+	if closed == false then
+		_G.standScriptsBpDc = {}
+		_G.standValue = standValue.Value
+		_G.fusionValue = fuseValue.Value
+		xpcall(function()
+			repeat
+				task.wait()
+			until getrenv()._G.indicatecooldown ~= _G.oldIndicateThing
+			_G.oldIndicateThing = nil
+			oldIndicate = hookfunc(getrenv()._G.indicatecooldown, function(...)
+				if not checkcaller() and _G.noCooldownActive == true then
+					for i,v in pairs(debug.getupvalues(2)) do
+						if type(v) == "boolean" then
+							debug.setupvalue(2, i, true)
+						end
+					end
+					return nil
+				end
+				return oldIndicate(...)
+			end)
+			_G.oldIndicateThing = oldIndicate
+		end, function()
+		
+		end)
+
+		xpcall(function()
+			repeat
+				task.wait()
+			until getrenv()._G.mobilebuttoncheck ~= _G.oldMobileButtonCheck
+			_G.oldMobileButtonCheck = nil
+			oldIndicate = hookfunc(getrenv()._G.mobilebuttoncheck, function(...)
+				if not checkcaller() then
+					local const = debug.getconstants(2)
+					local upvals = debug.getupvalues(2)
+
+					for i,v in pairs(const) do
+						if v == _G.ssb and v ~= _G.fusionValue then
+							if _G.ssbSubActive == true then
+								print("hiiiii!!!!")
+								_G.ssbLineIndex = i
+								debug.setconstant(2, i, _G.fusionValue)
+							end
+						end
+						if i == ssbLineIndex then
+							if _G.ssbSubActive == false then
+								_G.ssbLineIndex = 0
+								debug.setconstant(2, i, _G.ssb)
+							end
+						end
+
+						
+						if v == _G.twau and v ~= _G.fusionValue then
+							if _G.twauSubActive == true then
+								print("hiiii!!! found twau")
+								_G.twauLineIndex = i
+								debug.setconstant(2, i, _G.fusionValue)
+							end
+						end
+						if i == twauLineIndex then
+							if _G.twauSubActive == false then
+								_G.twauLineIndex = 0
+								debug.setconstant(2, i, _G.twau)
+							end
+						end
+					end
+
+					for i,v in pairs(upvals) do
+						if v == _G.ssb and v ~= _G.fusionValue then
+							if _G.ssbSubActive == true then
+								print("hiiiii!!!!")
+								_G.ssbLineIndex = i
+								debug.setupvalue(2, i, _G.fusionValue)
+							end
+						end
+						if i == ssbLineIndex then
+							if _G.ssbSubActive == false then
+								_G.ssbLineIndex = 0
+								debug.setupvalue(2, i, _G.ssb)
+							end
+						end
+
+						
+						if v == _G.twau and v ~= _G.fusionValue then
+							if _G.twauSubActive == true then
+								print("hiiii!!! found twau")
+								_G.twauLineIndex = i
+								debug.setupvalue(2, i, _G.fusionValue)
+							end
+						end
+						if i == twauLineIndex then
+							if _G.twauSubActive == false then
+								_G.twauLineIndex = 0
+								debug.setupvalue(2, i, _G.twau)
+							end
+						end
+					end
+				end
+				return oldIndicate(...)
+			end)
+			_G.oldMobileButtonCheck = oldIndicate
+		end, function()
+		
+		end)
+	end
+    --printTable(functions, 1)
+end
+goThruStandScripts()
+local plrcharaddedconnec = player.CharacterAdded:Connect(function(charadded)
+	charaddedevent(charadded)
+	task.wait(0.5)
+	goThruStandScripts()
+end)
+charaddedevent(character)
+table.insert(savedConnections, plrcharaddedconnec)
