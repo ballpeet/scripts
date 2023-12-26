@@ -28,24 +28,6 @@ for i,v in pairs(player.Backpack:GetChildren()) do
 end
 local plrgui = player.PlayerGui
 local l__cooldowns__1 = plrgui:WaitForChild("cooldowns");
-_G.indicatecooldown = function(p1, p2)
-	local v11 = l__cooldowns__1.movecd:Clone();
-	local v12 = math.max(0, #l__cooldowns__1:GetChildren() - 1);
-	if v12 >= 10 then
-		v11.Position = UDim2.new(0.11, 0, 0.285 + 0.1 * (v12 - 10), 0);
-	elseif v12 >= 5 and v12 < 10 then
-		v11.Position = UDim2.new(0.066, 0, 0.285 + 0.1 * (v12 - 5), 0);
-	else
-		v11.Position = UDim2.new(0.024, 0, 0.285 + 0.1 * v12, 0);
-	end;
-	v11.Text = p1;
-	v11.length.Value = p2;
-	v11.start.Value = tick();
-	v11.Name = p1;
-	v11.numberprogress.Text = tostring(p2);
-	v11.Visible = true;
-	v11.Parent = l__cooldowns__1;
-end
 local totalWrap = coroutine.create(function ()
     local l__mouse__2 = l__Parent__1:GetMouse();
     while true do
