@@ -1064,7 +1064,7 @@ OldNameCall = hookmetamethod(game, "__namecall", function(Self, ...)
 		if table.find(blacklistFromSpy, Self) == nil then
 			if buttonValues[printEventsToggle] == true then
 				print("Adding new event queue!")
-				_G.eventQueue[Self.Name] = {Self, getcallingscript(), Args}
+				table.insert(_G.eventQueue, {Self, getcallingscript(), Args})
 			end
 		end
 		if Self == hitbox and buttonValues[touchOfLifeToggle] == true then
