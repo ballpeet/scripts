@@ -1061,6 +1061,7 @@ OldNameCall = hookmetamethod(game, "__namecall", function(Self, ...)
 	local NamecallMethod = getnamecallmethod()
 
 	if not checkcaller() and (NamecallMethod == "FireServer" or NamecallMethod == "InvokeServer") then
+		print(Self.Name)
 		if table.find(blacklistFromSpy, Self) == nil then
 			if buttonValues[printEventsToggle] == true then
 				_G.eventQueue[Self.Name] = {Self, getcallingscript(), Args}
