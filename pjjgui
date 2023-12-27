@@ -1061,9 +1061,6 @@ OldNameCall = hookmetamethod(game, "__namecall", function(Self, ...)
 	local NamecallMethod = getnamecallmethod()
 
 	if not checkcaller() and (NamecallMethod == "FireServer" or NamecallMethod == "InvokeServer") then
-		print(buttonValues[printEventsToggle])
-		print(buttonValues[kissSubToggle])
-
 		if table.find(blacklistFromSpy, Self) == nil then
 			if buttonValues[printEventsToggle] == true then
 				_G.eventQueue[Self.Name] = {Self, getcallingscript(), Args}
@@ -1073,7 +1070,10 @@ OldNameCall = hookmetamethod(game, "__namecall", function(Self, ...)
 			Args[4] = 0
 			table.insert(_G.TToLQueue, Args[6])
 		end
+		print(Self.Name)
+		print(table.find(projectiles, Self) ~= nil)
 		if table.find(projectiles, Self) and buttonValues[kissSubToggle] then
+			print(Self.Name.." is a Projectile!")
 			for i = 1, buttonValues[kissSubMultAmt] do
 
 				for i,v in pairs(Args) do
