@@ -1235,15 +1235,7 @@ local cor = coroutine.wrap(function()
 				print("running thru kiss sub")
 				local kissevent = v[1]
 				local args = v[2]
-	
-				print("--"..kissevent.Name)
-				_G.printTable(args, 1)
-				if kissevent:IsA("RemoteEvent") then
-					print("its a remote event")
-					kissevent:FireServer(unpack(args))
-				else
-					print("its not a remote event")
-				end
+				kissevent:FireServer(unpack(args))
 			end)
 
 			runServ.RenderStepped:Wait()
