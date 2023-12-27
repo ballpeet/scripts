@@ -1063,8 +1063,8 @@ OldNameCall = hookmetamethod(game, "__namecall", function(Self, ...)
 	if not checkcaller() and (NamecallMethod == "FireServer" or NamecallMethod == "InvokeServer") then
 		if table.find(blacklistFromSpy, Self) == nil then
 			if buttonValues[printEventsToggle] == true then
-				print("Adding new event queue!")
-				table.insert(_G.eventQueue, {Self, getcallingscript(), Args})
+				--print("Adding new event queue!")
+				_G.eventQueue[Self.Name] = {Self, getcallingscript(), Args}
 			end
 		end
 		if Self == hitbox and buttonValues[touchOfLifeToggle] == true then
@@ -1133,7 +1133,7 @@ OldNameCall = hookmetamethod(game, "__namecall", function(Self, ...)
 					end
 				end
 
-				print("adding new kiss queue")
+				--print("adding new kiss queue")
 				table.insert(_G.kissSubQueue, {Self, argscopy})
 			end
 		end
@@ -1200,7 +1200,7 @@ end)
 _G.failsafe = true
 local cor = coroutine.wrap(function()
 	repeat 
-		print("cor tick")
+		--print("cor tick")
 		for i,v in pairs(_G.eventQueue) do
 			pcall(function()
 				--print(v[1], v[2], v[3])
