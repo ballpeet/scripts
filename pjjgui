@@ -1204,13 +1204,12 @@ local cor = coroutine.wrap(function()
 		for i,v in pairs(_G.eventQueue) do
 			pcall(function()
 				--print(v[1], v[2], v[3])
-				print("running thru event queue")
-				printInfoToConsole(v[1])
+				_G.printInfoToConsole(v[1])
 				if v[2] ~= nil then
-					printInfoToConsole(v[2])
+					_G.printInfoToConsole(v[2])
 				end
-				printTable(v[3], 1)
-				printInfoToConsole("//")
+				_G.printTable(v[3], 1)
+				_G.printInfoToConsole("//")
 				_G.eventQueue[i] = nil
 			end)
 		end
@@ -1238,7 +1237,7 @@ local cor = coroutine.wrap(function()
 				local args = v[2]
 	
 				print("--"..event.Name)
-				printTable(args, 1)
+				_G.printTable(args, 1)
 				if event:IsA("RemoteEvent") then
 					event:FireServer(unpack(args))
 				end
