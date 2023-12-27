@@ -1202,14 +1202,17 @@ local cor = coroutine.wrap(function()
 	repeat 
 		print("cor tick")
 		for i,v in pairs(_G.eventQueue) do
-			print("running thru event queue")
-			printInfoToConsole(v[1]:GetFullName())
-			if v[2] ~= nil then
-				printInfoToConsole(v[2]:GetFullName())
-			end
-			printTable(v[3], 1)
-			printInfoToConsole("//")
-			_G.eventQueue[i] = nil
+			pcall(function()
+				print(v[1], v[2], v[3])
+				print("running thru event queue")
+				printInfoToConsole(v[1]:GetFullName())
+				if v[2] ~= nil then
+					printInfoToConsole(v[2]:GetFullName())
+				end
+				printTable(v[3], 1)
+				printInfoToConsole("//")
+				_G.eventQueue[i] = nil
+			end)
 		end
 
 		for i,v in pairs(_G.TToLQueue) do
