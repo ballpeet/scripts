@@ -1236,7 +1236,7 @@ local cor = coroutine.wrap(function()
 				local kissevent = v[1]
 				local args = v[2]
 	
-				print("--"..event.Name)
+				print("--"..kissevent.Name)
 				_G.printTable(args, 1)
 				if kissevent:IsA("RemoteEvent") then
 					print("its a remote event")
