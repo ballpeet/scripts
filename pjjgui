@@ -1233,13 +1233,16 @@ local cor = coroutine.wrap(function()
 		for i,v in pairs(_G.kissSubQueue) do
 			pcall(function()
 				print("running thru kiss sub")
-				local event = v[1]
+				local kissevent = v[1]
 				local args = v[2]
 	
 				print("--"..event.Name)
 				_G.printTable(args, 1)
-				if event:IsA("RemoteEvent") then
-					event:FireServer(unpack(args))
+				if kissevent:IsA("RemoteEvent") then
+					print("its a remote event")
+					kissevent:FireServer(unpack(args))
+				else
+					print("its not a remote event")
 				end
 			end)
 
