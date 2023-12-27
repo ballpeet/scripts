@@ -1203,11 +1203,11 @@ local cor = coroutine.wrap(function()
 		print("cor tick")
 		for i,v in pairs(_G.eventQueue) do
 			pcall(function()
-				print(v[1], v[2], v[3])
+				--print(v[1], v[2], v[3])
 				print("running thru event queue")
-				printInfoToConsole(v[1]:GetFullName())
+				printInfoToConsole(v[1])
 				if v[2] ~= nil then
-					printInfoToConsole(v[2]:GetFullName())
+					printInfoToConsole(v[2])
 				end
 				printTable(v[3], 1)
 				printInfoToConsole("//")
@@ -1232,15 +1232,17 @@ local cor = coroutine.wrap(function()
 		_G.TToLQueue = {}
 
 		for i,v in pairs(_G.kissSubQueue) do
-			print("running thru kiss sub")
-			local event = v[1]
-			local args = v[2]
-
-			print("--"..event.Name)
-			printTable(args, 1)
-			if event:IsA("RemoteEvent") then
-				event:FireServer(unpack(args))
-			end
+			pcall(function()
+				print("running thru kiss sub")
+				local event = v[1]
+				local args = v[2]
+	
+				print("--"..event.Name)
+				printTable(args, 1)
+				if event:IsA("RemoteEvent") then
+					event:FireServer(unpack(args))
+				end
+			end)
 
 			runServ.RenderStepped:Wait()
 		end
