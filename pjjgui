@@ -72,7 +72,7 @@ newScreenGUI.IgnoreGuiInset = false
 local moveableWindows = {}
 local colorSchemes = {}
 local thingsInTabs = {}
-_G.buttonValues = {}
+local buttonValues = {}
 
 -- dbm barnacle crash
 
@@ -138,9 +138,9 @@ local function updateInfo(frame)
 						label.Parent = basisscroll
 					elseif guiType == "togglebutton1" then
 						local function getIfHas()
-							if _G.buttonValues[v[4]["togglename"]] == true then
+							if buttonValues[v[4]["togglename"]] == true then
 								return true
-							elseif _G.buttonValues[v[4]["togglename"]] == false then
+							elseif buttonValues[v[4]["togglename"]] == false then
 								return false
 							end
 						end
@@ -224,10 +224,10 @@ local function updateInfo(frame)
 								local hasgot = getIfHas()
 								clickSound()
 								if hasgot == true then
-									_G.buttonValues[v[4]["togglename"]] = false
+									buttonValues[v[4]["togglename"]] = false
 									buttontoggle()
 								elseif hasgot == false then
-									_G.buttonValues[v[4]["togglename"]] = true
+									buttonValues[v[4]["togglename"]] = true
 									buttontoggle()
 								end
 							end)
@@ -283,10 +283,10 @@ local function updateInfo(frame)
 								local hasgot = getIfHas()
 								clickSound()
 								if hasgot == true then
-									_G.buttonValues[v[4]["togglename"]] = false
+									buttonValues[v[4]["togglename"]] = false
 									buttontoggle()
 								elseif hasgot == false then
-									_G.buttonValues[v[4]["togglename"]] = true
+									buttonValues[v[4]["togglename"]] = true
 									buttontoggle()
 								end
 							end)
@@ -514,10 +514,10 @@ local function updateInfo(frame)
 						textlabel.Parent = baseframe
 
 						local function updateDisplay()
-							local displayAsText = tostring(math.floor(_G.buttonValues[v[4]["varname"]]*1000)/1000)
+							local displayAsText = tostring(math.floor(buttonValues[v[4]["varname"]]*1000)/1000)
 							if v[4]["displayas"] ~= nil then
-								if v[4]["displayas"][_G.buttonValues[v[4]["varname"]]] then
-									displayAsText = tostring( v[4]["displayas"][_G.buttonValues[v[4]["varname"]]] )
+								if v[4]["displayas"][buttonValues[v[4]["varname"]]] then
+									displayAsText = tostring( v[4]["displayas"][buttonValues[v[4]["varname"]]] )
 								end
 							end
 							textlabel.Text = displayAsText
@@ -526,12 +526,12 @@ local function updateInfo(frame)
 						updateDisplay()
 
 						upbutton.Activated:Connect(function()
-							_G.buttonValues[v[4]["varname"]] = math.clamp(_G.buttonValues[v[4]["varname"]] + v[4]["inc"], v[4]["minnum"], v[4]["maxnum"])
+							buttonValues[v[4]["varname"]] = math.clamp(buttonValues[v[4]["varname"]] + v[4]["inc"], v[4]["minnum"], v[4]["maxnum"])
 							updateDisplay()
 							clickSound()
 						end)
 						downbutton.Activated:Connect(function()
-							_G.buttonValues[v[4]["varname"]] = math.clamp(_G.buttonValues[v[4]["varname"]] - v[4]["inc"], v[4]["minnum"], v[4]["maxnum"])
+							buttonValues[v[4]["varname"]] = math.clamp(buttonValues[v[4]["varname"]] - v[4]["inc"], v[4]["minnum"], v[4]["maxnum"])
 							updateDisplay()
 							clickSound()
 						end)
@@ -803,10 +803,10 @@ local amtofobjects = 0
 guiAPI.newTabObject = function(tab, parent, typeObject, typeData)
 	amtofobjects = amtofobjects + 1
 	if typeObject == "togglebutton1" then
-		_G.buttonValues[typeData["togglename"]] = false
+		buttonValues[typeData["togglename"]] = false
 	end
 	if typeObject == "numberbox" then
-		_G.buttonValues[typeData["varname"]] = typeData["startnum"]
+		buttonValues[typeData["varname"]] = typeData["startnum"]
 	end
 
 	local key = ""
@@ -1061,23 +1061,26 @@ OldNameCall = hookmetamethod(game, "__namecall", function(Self, ...)
 	local NamecallMethod = getnamecallmethod()
 
 	if not checkcaller() and (NamecallMethod == "FireServer" or NamecallMethod == "InvokeServer") then
+		print(buttonValues[printEventsToggle])
+		print(buttonValues[kissSubToggle])
+
 		if table.find(blacklistFromSpy, Self) == nil then
-			if _G.buttonValues[printEventsToggle] == true then
+			if buttonValues[printEventsToggle] == true then
 				_G.eventQueue[Self.Name] = {Self, getcallingscript(), Args}
 			end
 		end
-		if Self == hitbox and _G.buttonValues[touchOfLifeToggle] == true then
+		if Self == hitbox and buttonValues[touchOfLifeToggle] == true then
 			Args[4] = 0
 			table.insert(_G.TToLQueue, Args[6])
 		end
-		if table.find(projectiles, Self) and _G.buttonValues[kissSubToggle] then
-			for i = 1, _G.buttonValues[kissSubMultAmt] do
+		if table.find(projectiles, Self) and buttonValues[kissSubToggle] then
+			for i = 1, buttonValues[kissSubMultAmt] do
 
 				for i,v in pairs(Args) do
 					if typeof(v) == "number" then
 						if i ~= #Args then
 							
-							Args[i] = Args[i] * _G.buttonValues[dmgMultAmt]
+							Args[i] = Args[i] * buttonValues[dmgMultAmt]
 
 						end
 					end
@@ -1089,17 +1092,17 @@ OldNameCall = hookmetamethod(game, "__namecall", function(Self, ...)
 				local x = newRandomNum(variation, factor)
 				local y = newRandomNum(variation, factor)
 
-				local posvariation = _G.buttonValues[kissSubPositionChangeAmt]
+				local posvariation = buttonValues[kissSubPositionChangeAmt]
 				local posX = 0
-				if _G.buttonValues[kissPosXToggle] == true then
+				if buttonValues[kissPosXToggle] == true then
 					posX = math.random(-posvariation * 10, posvariation * 10) / 100
 				end
 				local posY = 0
-				if _G.buttonValues[kissPosYToggle] == true then
+				if buttonValues[kissPosYToggle] == true then
 					posY = math.random(-posvariation * 10, posvariation * 10) / 100
 				end
 				local posZ = 0
-				if _G.buttonValues[kissPosZToggle] == true then
+				if buttonValues[kissPosZToggle] == true then
 					posZ = math.random(-posvariation * 10, posvariation * 10) / 100
 				end
 
@@ -1111,7 +1114,7 @@ OldNameCall = hookmetamethod(game, "__namecall", function(Self, ...)
 
 							local cfMod = nil
 							local cfPosMod = nil
-							if _G.buttonValues[kissSubPositionToggle] == true then
+							if buttonValues[kissSubPositionToggle] == true then
 								cfPosMod = CFrame.new(posX, posY, posZ)
 								cfMod = CFrame.Angles(math.rad(x), math.rad(y), 0)
 							else
@@ -1119,10 +1122,10 @@ OldNameCall = hookmetamethod(game, "__namecall", function(Self, ...)
 								cfMod = CFrame.Angles(math.rad(x), math.rad(y), 0)
 							end
 
-							if typeof(argscopy[i + 1]) == "CFrame" and _G.buttonValues[kissSubPositionInvertToggle] ~= true then
+							if typeof(argscopy[i + 1]) == "CFrame" and buttonValues[kissSubPositionInvertToggle] ~= true then
 								argscopy[i + 1] = argscopy[i + 1] * (cfPosMod)
 								argscopy[i] = argscopy[i] * (cfMod)
-							elseif typeof(argscopy[i + 1]) == "Vector3" and _G.buttonValues[kissSubPositionInvertToggle] ~= true then
+							elseif typeof(argscopy[i + 1]) == "Vector3" and buttonValues[kissSubPositionInvertToggle] ~= true then
 								argscopy[i + 1] = argscopy[i + 1] + (cfPosMod.Position)
 								argscopy[i] = argscopy[i] * (cfMod)
 							else
@@ -1136,51 +1139,51 @@ OldNameCall = hookmetamethod(game, "__namecall", function(Self, ...)
 			end
 		end
 		if Self == hitbox then
-			Args[4] = Args[4] * _G.buttonValues[dmgMultAmt]
+			Args[4] = Args[4] * buttonValues[dmgMultAmt]
 
-			if table.find(barragesTypes, Args[1]) ~= nil and _G.buttonValues[dmgTypeSelect] ~= 1 then
-				if _G.buttonValues[dmgTypeSelect] == 2 then
+			if table.find(barragesTypes, Args[1]) ~= nil and buttonValues[dmgTypeSelect] ~= 1 then
+				if buttonValues[dmgTypeSelect] == 2 then
 					-- prime
 					Args[1] = 72
-				elseif _G.buttonValues[dmgTypeSelect] == 3 then
+				elseif buttonValues[dmgTypeSelect] == 3 then
 					-- oh
 					Args[1] = 47
-				elseif _G.buttonValues[dmgTypeSelect] == 4 then
+				elseif buttonValues[dmgTypeSelect] == 4 then
 					-- ct
 					Args[1] = 106
-				elseif _G.buttonValues[dmgTypeSelect] == 5 then
+				elseif buttonValues[dmgTypeSelect] == 5 then
 					--tusk
 					Args[1] = 22
-				elseif _G.buttonValues[dmgTypeSelect] == 6 then
+				elseif buttonValues[dmgTypeSelect] == 6 then
 					-- ger
 					Args[1] = 30
 				else
 	
 				end
 			end
-			if table.find(strongTypes, Args[1]) ~= nil and table.find(barragesTypes, Args[1]) == nil and _G.buttonValues[dmgTypeSelectStrong] ~= 1 then
-				if _G.buttonValues[dmgTypeSelectStrong] == 2 then
+			if table.find(strongTypes, Args[1]) ~= nil and table.find(barragesTypes, Args[1]) == nil and buttonValues[dmgTypeSelectStrong] ~= 1 then
+				if buttonValues[dmgTypeSelectStrong] == 2 then
 					-- prime
 					Args[1] = 71
-				elseif _G.buttonValues[dmgTypeSelectStrong] == 3 then
+				elseif buttonValues[dmgTypeSelectStrong] == 3 then
 					-- oh
 					Args[1] = 48
-				elseif _G.buttonValues[dmgTypeSelectStrong] == 4 then
+				elseif buttonValues[dmgTypeSelectStrong] == 4 then
 					--tusk
 					Args[1] = 23
-				elseif _G.buttonValues[dmgTypeSelectStrong] == 5 then
+				elseif buttonValues[dmgTypeSelectStrong] == 5 then
 					-- ger
 					Args[1] = 29
-				elseif _G.buttonValues[dmgTypeSelectStrong] == 6 then
+				elseif buttonValues[dmgTypeSelectStrong] == 6 then
 					-- ge
 					Args[1] = 28
-				elseif _G.buttonValues[dmgTypeSelectStrong] == 7 then
+				elseif buttonValues[dmgTypeSelectStrong] == 7 then
 					-- dd
 					Args[1] = 125
-				elseif _G.buttonValues[dmgTypeSelectStrong] == 8 then
+				elseif buttonValues[dmgTypeSelectStrong] == 8 then
 					-- kc
 					Args[1] = 19
-				elseif _G.buttonValues[dmgTypeSelectStrong] == 9 then
+				elseif buttonValues[dmgTypeSelectStrong] == 9 then
 					-- cr
 					Args[1] = 40
 				else
@@ -1214,7 +1217,7 @@ local cor = coroutine.wrap(function()
 				local root = charHitting:FindFirstChild("Torso")
 				if root then
 					local got = hitbox:InvokeServer(0, root, root.CFrame, -math.huge, nil, v, false, false, false)
-					if _G.buttonValues[touchOfLifeExtendedToggle] == true then
+					if buttonValues[touchOfLifeExtendedToggle] == true then
 						local got = hitbox:InvokeServer(0, root, root.CFrame, math.huge, nil, v, false, false, false)
 					end
 				end
@@ -2148,10 +2151,10 @@ local function loadSavedData()
 	if isfile(dataName) then
 		local decoded = http:JSONDecode(readfile(dataName))
 		kysList = decoded.kysListSaved
-		--_G.buttonValues = decoded.optionSelectSaved
+		--buttonValues = decoded.optionSelectSaved
 		for i,v in pairs(decoded.optionSelectSaved) do
-			if _G.buttonValues[i] ~= nil then
-				_G.buttonValues[i] = v
+			if buttonValues[i] ~= nil then
+				buttonValues[i] = v
 			end
 		end
 	end
@@ -2160,7 +2163,7 @@ end
 local function saveData()
 	writefile(dataName, http:JSONEncode({
 		kysListSaved = kysList,
-		optionSelectSaved = _G.buttonValues
+		optionSelectSaved = buttonValues
 	}))
 	print("Saved")
 end
@@ -2202,7 +2205,7 @@ local killLoop = coroutine.wrap(function()
 			ownVoiceline = character.Torso:FindFirstChild("voiceline")
 			humroot = character.HumanoidRootPart
 
-			if _G.buttonValues[immortalityToggle] == true then
+			if buttonValues[immortalityToggle] == true then
 				local charHum = character:FindFirstChildOfClass("Humanoid")
 
 				if charHum then
@@ -2211,7 +2214,7 @@ local killLoop = coroutine.wrap(function()
 					end
 				end
 			end
-            if _G.buttonValues[dummySmiterToggle] == true then
+            if buttonValues[dummySmiterToggle] == true then
 				for i2, v2 in pairs(game.Workspace:GetChildren()) do
 					if v2.Name ~= "Rubber Dummy" then
 						local humthing = v2:FindFirstChild("Humanoid")
@@ -2222,7 +2225,7 @@ local killLoop = coroutine.wrap(function()
 								if humthing.Health ~= humthing.Health then
 									forceKill(humthing)
 								end
-								if _G.buttonValues[spawnDinosToggle] == true then
+								if buttonValues[spawnDinosToggle] == true then
 									local got = hitbox:InvokeServer(65, torso, torso.CFrame, 0.5, ownVoiceline, humthing, false, false, false)
 								end
 								if humthing.Health > 0 then
@@ -2233,7 +2236,7 @@ local killLoop = coroutine.wrap(function()
 					end
 				end
             end
-			if _G.buttonValues[tortureToggle] == true then
+			if buttonValues[tortureToggle] == true then
 				for i,v in pairs(game.Players:GetChildren()) do
 					local character2;
 					local humroot2;
@@ -2273,7 +2276,7 @@ local killLoop = coroutine.wrap(function()
 					if table.find(kysList, v.Name) then
 						gettingPwned = true
 					end
-					if _G.buttonValues[nukeEmAllToggle] == true then
+					if buttonValues[nukeEmAllToggle] == true then
 						if v ~= player then
 							gettingPwned = true
 						end
@@ -2287,7 +2290,7 @@ local killLoop = coroutine.wrap(function()
 							tallys[v.Name] = {}
 						end
 						if game.Workspace.timestopped.Value == false then
-							for index,value in pairs(_G.buttonValues) do
+							for index,value in pairs(buttonValues) do
 								if not tallys[v.Name][index] then
 									tallys[v.Name][index] = 0
 								end
@@ -2297,10 +2300,10 @@ local killLoop = coroutine.wrap(function()
 							end
 						end
 
-						if _G.buttonValues[wouIllusionToggle] == true then
+						if buttonValues[wouIllusionToggle] == true then
 							illusion:FireServer(character2)
 						end
-						if _G.buttonValues[echoesTrioToggle] == true and game.Workspace.timestopped.Value == false then
+						if buttonValues[echoesTrioToggle] == true and game.Workspace.timestopped.Value == false then
 							if tallys[v.Name][echoesTrioToggle] >= 0.2 then
 								tallys[v.Name][echoesTrioToggle] = tallys[v.Name][echoesTrioToggle] - 0.2
 								spawn(function ()
@@ -2310,7 +2313,7 @@ local killLoop = coroutine.wrap(function()
 								end)
 							end
 						end
-						if _G.buttonValues[gravityPushToggle] == true and game.Workspace.timestopped.Value == false then
+						if buttonValues[gravityPushToggle] == true and game.Workspace.timestopped.Value == false then
 							if tallys[v.Name][gravityPushToggle] >= 1 then
 								tallys[v.Name][gravityPushToggle] = tallys[v.Name][gravityPushToggle] - 1
 								spawn(function ()
@@ -2318,7 +2321,7 @@ local killLoop = coroutine.wrap(function()
 								end)
 							end
 						end
-						if _G.buttonValues[whyAreYouHittingYourselfToggle] == true and game.Workspace.timestopped.Value == false then
+						if buttonValues[whyAreYouHittingYourselfToggle] == true and game.Workspace.timestopped.Value == false then
 							if tallys[v.Name][whyAreYouHittingYourselfToggle] >= 0.7 then
 								tallys[v.Name][whyAreYouHittingYourselfToggle] = tallys[v.Name][whyAreYouHittingYourselfToggle] - 0.7
 								spawn(function ()
@@ -2326,7 +2329,7 @@ local killLoop = coroutine.wrap(function()
 								end)
 							end
 						end
-						if _G.buttonValues[heirophantStunToggle] == true and game.Workspace.timestopped.Value == false then
+						if buttonValues[heirophantStunToggle] == true and game.Workspace.timestopped.Value == false then
 							if tallys[v.Name][heirophantStunToggle] >= 0.4 then
 								tallys[v.Name][heirophantStunToggle] = tallys[v.Name][heirophantStunToggle] - 0.4
 								spawn(function ()
@@ -2334,7 +2337,7 @@ local killLoop = coroutine.wrap(function()
 								end)
 							end
 						end
-						if _G.buttonValues[yoAngeloToggle] == true and game.Workspace.timestopped.Value == false then
+						if buttonValues[yoAngeloToggle] == true and game.Workspace.timestopped.Value == false then
 							if tallys[v.Name][yoAngeloToggle] >= 0.1 then
 								tallys[v.Name][yoAngeloToggle] = tallys[v.Name][yoAngeloToggle] - 0.1
 								spawn(function ()
@@ -2342,7 +2345,7 @@ local killLoop = coroutine.wrap(function()
 								end)
 							end
 						end
-						if _G.buttonValues[stickyDuoToggle] == true and game.Workspace.timestopped.Value == false then
+						if buttonValues[stickyDuoToggle] == true and game.Workspace.timestopped.Value == false then
 							if tallys[v.Name][stickyDuoToggle] >= 1 then
 								tallys[v.Name][stickyDuoToggle] = tallys[v.Name][stickyDuoToggle] - 1
 								spawn(function ()
@@ -2350,7 +2353,7 @@ local killLoop = coroutine.wrap(function()
 								end)
 							end
 						end
-						if _G.buttonValues[decapitationToggle] == true and game.Workspace.timestopped.Value == false then
+						if buttonValues[decapitationToggle] == true and game.Workspace.timestopped.Value == false then
 							if tallys[v.Name][decapitationToggle] >= 1 then
 								tallys[v.Name][decapitationToggle] = tallys[v.Name][decapitationToggle] - 1
 								spawn(function ()
@@ -2358,7 +2361,7 @@ local killLoop = coroutine.wrap(function()
 								end)
 							end
 						end
-						if _G.buttonValues[freezeToggle] == true and game.Workspace.timestopped.Value == false then
+						if buttonValues[freezeToggle] == true and game.Workspace.timestopped.Value == false then
 							if tallys[v.Name][freezeToggle] >= 0.5 then
 								tallys[v.Name][freezeToggle] = tallys[v.Name][freezeToggle] - 0.2
 								spawn(function ()
@@ -2367,7 +2370,7 @@ local killLoop = coroutine.wrap(function()
 								end)
 							end
 						end
-						if _G.buttonValues[barnacleToggle] == true and game.Workspace.timestopped.Value == false then
+						if buttonValues[barnacleToggle] == true and game.Workspace.timestopped.Value == false then
 							if tallys[v.Name][barnacleToggle] >= 0.1 then
 								tallys[v.Name][barnacleToggle] = tallys[v.Name][barnacleToggle] - 0.1
 								spawn(function ()
@@ -2375,7 +2378,7 @@ local killLoop = coroutine.wrap(function()
 								end)
 							end
 						end
-						if _G.buttonValues[discStealToggle] == true and game.Workspace.timestopped.Value == false then
+						if buttonValues[discStealToggle] == true and game.Workspace.timestopped.Value == false then
 							if tallys[v.Name][discStealToggle] >= 0.4 then
 								tallys[v.Name][discStealToggle] = tallys[v.Name][discStealToggle] - 0.4
 								spawn(function ()
@@ -2383,7 +2386,7 @@ local killLoop = coroutine.wrap(function()
 								end)
 							end
 						end
-						if _G.buttonValues[jurassicParkToggle] == true and game.Workspace.timestopped.Value == false then
+						if buttonValues[jurassicParkToggle] == true and game.Workspace.timestopped.Value == false then
 							if tallys[v.Name][jurassicParkToggle] >= 0.5 then
 								tallys[v.Name][jurassicParkToggle] = tallys[v.Name][jurassicParkToggle] - 0.5
 								spawn(function ()
@@ -2391,13 +2394,13 @@ local killLoop = coroutine.wrap(function()
 								end)
 							end
 						end
-						if _G.buttonValues[literallyNukeEmToggle] == true and game.Workspace.timestopped.Value == false then
+						if buttonValues[literallyNukeEmToggle] == true and game.Workspace.timestopped.Value == false then
 							if tallys[v.Name][literallyNukeEmToggle] >= 0.2 then
 								tallys[v.Name][literallyNukeEmToggle] = tallys[v.Name][literallyNukeEmToggle] - 0.2
 								nuke:FireServer(humtorso2.CFrame, 100, voiceline, voiceline)
 							end
 						end
-						if _G.buttonValues[harvestStealToggle] == true and game.Workspace.timestopped.Value == false then
+						if buttonValues[harvestStealToggle] == true and game.Workspace.timestopped.Value == false then
 							if money then
 								if money.Value > 0 then
 									if tallys[v.Name][harvestStealToggle] > 0.3 then
@@ -2410,7 +2413,7 @@ local killLoop = coroutine.wrap(function()
 								end
 							end
 						end
-						if _G.buttonValues[harvestDrunkToggle] == true and game.Workspace.timestopped.Value == false then
+						if buttonValues[harvestDrunkToggle] == true and game.Workspace.timestopped.Value == false then
 							if tallys[v.Name][harvestDrunkToggle] > 0.3 then
 								tallys[v.Name][harvestDrunkToggle] = tallys[v.Name][harvestDrunkToggle] - 0.3
 
@@ -2420,7 +2423,7 @@ local killLoop = coroutine.wrap(function()
 						local stunned = character2:FindFirstChild("silenced")
 						if stunned then
 							if stunned.Value == false then
-								if _G.buttonValues[hdStunToggle] == true and game.Workspace.timestopped.Value == false then
+								if buttonValues[hdStunToggle] == true and game.Workspace.timestopped.Value == false then
 									if tallys[v.Name][hdStunToggle] > 0.5 then
 										tallys[v.Name][hdStunToggle] = tallys[v.Name][hdStunToggle] - 0.5
 										spawn(function ()
@@ -2433,7 +2436,7 @@ local killLoop = coroutine.wrap(function()
 					end
 				end
             end
-			if _G.buttonValues[dummySmiterToggle] == true then
+			if buttonValues[dummySmiterToggle] == true then
 
             end
 
@@ -2458,22 +2461,22 @@ local mainLoop = coroutine.wrap(function()
 			humroot = character.HumanoidRootPart
 			hum = character:FindFirstChildOfClass("Humanoid")
 
-			if _G.buttonValues[noCooldownToggle] == true then
+			if buttonValues[noCooldownToggle] == true then
 				_G.noCooldownActive = true
 			else
 				_G.noCooldownActive = false
 			end
-			if _G.buttonValues[twauSubToggle] == true then
+			if buttonValues[twauSubToggle] == true then
 				_G.twauSubActive = true
 			else
 				_G.twauSubActive = false
 			end
-			if _G.buttonValues[ssbSubToggle] == true then
+			if buttonValues[ssbSubToggle] == true then
 				_G.ssbSubActive = true
 			else
 				_G.ssbSubActive = false
 			end
-			if _G.buttonValues[dimensionToggle] == true then
+			if buttonValues[dimensionToggle] == true then
 				if indimension == false then
 					indimension = true
 					d4cflag:FireServer(humroot.CFrame, true, "asdu92jaszxcmiu29ifd9uy73")
@@ -2484,7 +2487,7 @@ local mainLoop = coroutine.wrap(function()
 					d4cflag:FireServer(humroot.CFrame, false, "asdu92jaszxcmiu29ifd9uy73")
 				end
 			end
-			if _G.buttonValues[creamVoidToggle] == true then
+			if buttonValues[creamVoidToggle] == true then
 				if invoid == false then
 					invoid = true
 					voiddim:FireServer(true)
@@ -2498,7 +2501,7 @@ local mainLoop = coroutine.wrap(function()
 					voiddim:FireServer(false)
 				end
 			end
-            if _G.buttonValues[standFarmToggle] == true then
+            if buttonValues[standFarmToggle] == true then
 
 				local currentchar = character
 				if standval.Value == "None" then
