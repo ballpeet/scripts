@@ -1232,7 +1232,6 @@ local cor = coroutine.wrap(function()
 
 		for i,v in pairs(_G.kissSubQueue) do
 			pcall(function()
-				print("running thru kiss sub")
 				local kissevent = v[1]
 				local args = v[2]
 				kissevent:FireServer(unpack(args))
