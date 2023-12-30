@@ -2215,16 +2215,16 @@ local killLoop = coroutine.wrap(function()
 				end
 			end
             if buttonValues[dummySmiterToggle] == true then
+				print("Starting")
+
 				for i2, v2 in pairs(game.Workspace:GetChildren()) do
 					if v2.Name ~= "Rubber Dummy" then
+						print("Found!")
 						local humthing = v2:FindFirstChild("Humanoid")
 						local plrfound = game.Players:GetPlayerFromCharacter(v2)
 						if humthing and plrfound == nil then
 							local torso = v2:FindFirstChild("HumanoidRootPart") or v2:FindFirstChild("Torso")
 							spawn(function ()
-								if humthing.Health ~= humthing.Health then
-									forceKill(humthing)
-								end
 								if buttonValues[spawnDinosToggle] == true then
 									local got = hitbox:InvokeServer(65, torso, torso.CFrame, 0.5, ownVoiceline, humthing, false, false, false)
 								end
