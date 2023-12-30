@@ -2215,11 +2215,8 @@ local killLoop = coroutine.wrap(function()
 				end
 			end
             if buttonValues[dummySmiterToggle] == true then
-				print("Starting")
-
 				for i2, v2 in pairs(game.Workspace:GetChildren()) do
 					if v2.Name ~= "Rubber Dummy" then
-						print("Found!")
 						local humthing = v2:FindFirstChild("Humanoid")
 						local plrfound = game.Players:GetPlayerFromCharacter(v2)
 						if humthing and plrfound == nil then
@@ -2643,7 +2640,6 @@ local function goThruStandScripts()
 					for i,v in pairs(const) do
 						if v == _G.ssb and v ~= _G.fusionValue then
 							if _G.ssbSubActive == true then
-								print("hiiiii!!!!")
 								_G.ssbLineIndex = i
 								debug.setconstant(2, i, _G.fusionValue)
 							end
@@ -2658,7 +2654,6 @@ local function goThruStandScripts()
 						
 						if v == _G.twau and v ~= _G.fusionValue then
 							if _G.twauSubActive == true then
-								print("hiiii!!! found twau")
 								_G.twauLineIndex = i
 								debug.setconstant(2, i, _G.fusionValue)
 							end
@@ -2674,7 +2669,6 @@ local function goThruStandScripts()
 					for i,v in pairs(upvals) do
 						if v == _G.ssb and v ~= _G.fusionValue then
 							if _G.ssbSubActive == true then
-								print("hiiiii!!!!")
 								_G.ssbLineIndex = i
 								debug.setupvalue(2, i, _G.fusionValue)
 							end
@@ -2689,7 +2683,6 @@ local function goThruStandScripts()
 						
 						if v == _G.twau and v ~= _G.fusionValue then
 							if _G.twauSubActive == true then
-								print("hiiii!!! found twau")
 								_G.twauLineIndex = i
 								debug.setupvalue(2, i, _G.fusionValue)
 							end
