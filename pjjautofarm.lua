@@ -8,14 +8,11 @@ local killLoop = coroutine.wrap(function()
                     local plrfound = game.Players:GetPlayerFromCharacter(v2)
                     if humthing and plrfound == nil then
                         local torso = v2:FindFirstChild("HumanoidRootPart") or v2:FindFirstChild("Torso")
-                        spawn(function ()
-                            if buttonValues[spawnDinosToggle] == true then
-                                local got = hitbox:InvokeServer(65, torso, torso.CFrame, 0.5, torso, humthing, false, false, false)
-                            end
-                            if humthing.Health > 0 then
+                        if humthing.Health > 0 then
+                            spawn(function ()
                                 local got = hitbox:InvokeServer(55, torso, torso.CFrame, 20000, torso, humthing, false, false, false)
-                            end
-                        end)
+                            end)
+                        end
                     end
                 end
             end
